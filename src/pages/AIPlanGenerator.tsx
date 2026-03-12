@@ -1,14 +1,14 @@
 import { useState } from "react";
 
-interface StudySession {
+interface DayPlan {
   day: string;
-  subject: string;
-  duration: string;
   focus: string;
+  hours: number;
 }
 
-interface GeneratedPlan {
-  [week: string]: StudySession[];
+interface WeekPlan {
+  week: string;
+  days: DayPlan[];
 }
 
 export default function AIPlanGenerator() {
@@ -16,7 +16,7 @@ export default function AIPlanGenerator() {
   const [topics, setTopics] = useState("");
   const [examDate, setExamDate] = useState("");
   const [hoursPerDay, setHoursPerDay] = useState<number | "">("");
-  const [plan, setPlan] = useState<GeneratedPlan | null>(null);
+  const [plan, setPlan] = useState<WeekPlan[]>([]);
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -25,7 +25,7 @@ export default function AIPlanGenerator() {
     "https://edunex-backend-rj22.onrender.com/api/ai/generate-plan";
 
   const generatePlan = async () => {
-    if (!subject || !examDate || !hoursPerDay) {
+    if (!subject || !topics || !examDate || !hoursPerDay) {
       alert("Please fill all fields properly");
       return;
     }
@@ -47,12 +47,10 @@ export default function AIPlanGenerator() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("AI plan generation failed");
-      }
-
       const data = await response.json();
-      setPlan(data.generatedPlan);
+
+      // Backend returns { weeks: [...] }
+      setPlan(data.weeks || []);
     } catch (error) {
       console.error("AI Plan Error:", error);
       alert("Failed to generate AI plan");
@@ -63,7 +61,9 @@ export default function AIPlanGenerator() {
 
   return (
     <div className="p-10 space-y-8">
-      <h1 className="text-3xl font-bold">🤖 AI Smart Study Plan Generator</h1>
+      <h1 className="text-3xl font-bold">
+        🤖 AI Smart Study Plan Generator
+      </h1>
 
       <div className="bg-white p-6 rounded-xl shadow space-y-4">
         <input
@@ -94,7 +94,9 @@ export default function AIPlanGenerator() {
           placeholder="Study hours per day"
           value={hoursPerDay}
           onChange={(e) =>
-            setHoursPerDay(e.target.value === "" ? "" : Number(e.target.value))
+            setHoursPerDay(
+              e.target.value === "" ? "" : Number(e.target.value)
+            )
           }
           className="w-full p-2 border rounded"
         />
@@ -107,22 +109,30 @@ export default function AIPlanGenerator() {
         </button>
       </div>
 
-      {plan && (
+      {plan.length > 0 && (
         <div className="space-y-6">
-          {Object.entries(plan).map(([week, sessions]) => (
-            <div key={week} className="bg-white p-6 rounded-xl shadow">
-              <h2 className="text-xl font-semibold mb-4">{week}</h2>
+          {plan.map((week, wIndex) => (
+            <div
+              key={wIndex}
+              className="bg-white p-6 rounded-xl shadow"
+            >
+              <h2 className="text-xl font-semibold mb-4">
+                {week.week}
+              </h2>
 
-              {sessions.map((session, index) => (
-                <div key={index} className="p-4 border rounded mb-2">
-                  <p className="font-semibold">
-                    {session.day} — {session.subject}
-                  </p>
+              {week.days.map((day, dIndex) => (
+                <div
+                  key={dIndex}
+                  className="p-4 border rounded mb-2"
+                >
+                  <p className="font-semibold">{day.day}</p>
+
                   <p className="text-sm text-gray-600">
-                    Duration: {session.duration}
+                    Duration: {day.hours} hours
                   </p>
+
                   <p className="text-sm text-gray-600">
-                    Focus: {session.focus}
+                    Focus: {day.focus}
                   </p>
                 </div>
               ))}
@@ -133,4 +143,3 @@ export default function AIPlanGenerator() {
     </div>
   );
 }
-

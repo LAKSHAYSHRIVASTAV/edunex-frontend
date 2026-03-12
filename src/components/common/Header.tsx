@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { LucideIcon } from 'lucide-react';
+import { BookOpen } from 'lucide-react'; 
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -14,9 +14,10 @@ const Header: React.FC = () => {
   return (
     <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
       <div className="flex items-center">
-        <LucideIcon name="BookOpen" className="h-8 w-8 mr-2" />
+        <BookOpen className="h-8 w-8 mr-2" /> 
         <h1 className="text-xl font-bold">EDUNEX</h1>
       </div>
+
       <nav>
         <ul className="flex space-x-4">
           {navLinks.map((link) => (

@@ -19,6 +19,12 @@ interface DashboardData {
   studyStreak: number;
   totalHours: number;
   avgDailyHours: number;
+
+  aiInsights?: {
+    learningState: string;
+    recommendedDifficulty: string;
+    weakestTopic: string | null;
+  };
 }
 
 export default function Dashboard() {
@@ -130,7 +136,7 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50">
-      
+
       <div className="absolute w-96 h-96 bg-purple-200 rounded-full blur-3xl opacity-20 top-10 left-10 animate-pulse"></div>
       <div className="absolute w-96 h-96 bg-blue-200 rounded-full blur-3xl opacity-20 bottom-10 right-10 animate-pulse"></div>
 
@@ -170,6 +176,30 @@ export default function Dashboard() {
             onFlashcardsClick={() => navigate("/flashcards")}
           />
 
+          {/* AI Insights */}
+          {dashboardData?.aiInsights && (
+            <motion.div
+              whileHover={{ y: -5 }}
+              className="bg-white/70 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/40"
+            >
+              <h2 className="text-xl font-bold mb-4">
+                🧠 AI Learning Insights
+              </h2>
+
+              <p className="text-gray-700">
+                Learning Level: {dashboardData.aiInsights.learningState}
+              </p>
+
+              <p className="text-gray-700">
+                Recommended Quiz: {dashboardData.aiInsights.recommendedDifficulty}
+              </p>
+
+              <p className="text-gray-700">
+                Weak Topic: {dashboardData.aiInsights.weakestTopic || "None"}
+              </p>
+            </motion.div>
+          )}
+
           {/* Weekly Goal */}
           {goalProgress && (
             <motion.div
@@ -180,7 +210,6 @@ export default function Dashboard() {
                 🎯 Weekly Goal
               </h2>
 
-              {/* Goal Input */}
               <div className="flex items-center gap-3 mb-6">
                 <input
                   type="number"
@@ -214,6 +243,7 @@ export default function Dashboard() {
             </motion.div>
           )}
 
+          {/* Recommendation */}
           {recommendation && (
             <motion.div
               whileHover={{ y: -5 }}

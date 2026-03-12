@@ -13,7 +13,7 @@ interface DashboardData {
 }
 
 interface Props {
-  dashboardData: DashboardData | null;
+  dashboardData?: DashboardData | null;
 }
 
 const ProgressChart: React.FC<Props> = ({ dashboardData }) => {

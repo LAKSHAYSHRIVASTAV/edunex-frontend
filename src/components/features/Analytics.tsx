@@ -1,16 +1,16 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import { useStudyData } from '../../hooks/useStudyData';
+import useStudyData from '../../hooks/useStudyData';
 
 const Analytics: React.FC = () => {
     const { studyData } = useStudyData();
 
     const data = {
-        labels: studyData.subjects,
+        labels: studyData.map(data => data.subject),
         datasets: [
             {
                 label: 'Progress',
-                data: studyData.progress,
+                data: studyData.map(data => data.progress),
                 backgroundColor: 'rgba(75, 192, 192, 0.6)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,

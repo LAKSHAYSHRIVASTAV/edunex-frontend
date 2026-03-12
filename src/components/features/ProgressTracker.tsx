@@ -1,16 +1,16 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { useStudyData } from '../../hooks/useStudyData';
+import useStudyData from '../../hooks/useStudyData';
 
 const ProgressTracker: React.FC = () => {
-    const { progressData } = useStudyData();
+    const { studyData } = useStudyData();
 
     const chartData = {
-        labels: progressData.map(data => data.date),
+        labels: studyData.map(data => data.subject), // 
         datasets: [
             {
                 label: 'Progress',
-                data: progressData.map(data => data.progress),
+                data: studyData.map(data => data.progress),
                 fill: false,
                 backgroundColor: 'rgba(75,192,192,0.4)',
                 borderColor: 'rgba(75,192,192,1)',

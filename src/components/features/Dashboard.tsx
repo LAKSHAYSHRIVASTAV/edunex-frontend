@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { ProgressTracker } from './ProgressTracker';
-import { Analytics } from './Analytics';
+import  Card  from '../ui/Card';
+import  Button  from '../ui/Button';
+import  ProgressTracker  from './ProgressTracker';
+import  Analytics  from './Analytics';
 
 const Dashboard: React.FC = () => {
     return (
@@ -14,7 +14,10 @@ const Dashboard: React.FC = () => {
                 <Card title="Performance Overview" content="Analyze your performance across subjects." />
             </div>
             <div className="mb-4">
-                <Button label="Plan Study Schedule" onClick={() => console.log('Planning...')} />
+                <Button onClick={() => console.log('Planning...')}>
+                    Plan Study Schedule
+                </Button>
+
             </div>
             <ProgressTracker />
             <Analytics />

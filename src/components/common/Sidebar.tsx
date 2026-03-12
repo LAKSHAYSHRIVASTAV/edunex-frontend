@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Book, ChartBar, User } from 'lucide-react';
+import { Home, Book, BarChart, User } from 'lucide-react';
+
 
 const Sidebar: React.FC = () => {
     return (
@@ -24,7 +25,8 @@ const Sidebar: React.FC = () => {
                     </li>
                     <li className="hover:bg-gray-700">
                         <Link to="/progress-tracker" className="flex items-center p-4">
-                            <ChartBar className="mr-2" />
+                            <BarChart className="mr-2" />
+
                             Progress Tracker
                         </Link>
                     </li>

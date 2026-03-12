@@ -49,6 +49,8 @@ export default function AIPlanGenerator() {
 
       const data = await response.json();
 
+      console.log("Study Plan Response:", data);
+
       // Backend returns { weeks: [...] }
       setPlan(data.weeks || []);
     } catch (error) {

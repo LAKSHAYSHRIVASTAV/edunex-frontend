@@ -1,14 +1,14 @@
 import { useState } from "react";
 
-interface DayPlan {
+interface StudySession {
   day: string;
+  subject: string;
+  duration: string;
   focus: string;
-  hours: number;
 }
 
-interface WeekPlan {
-  week: string;
-  days: DayPlan[];
+interface GeneratedPlan {
+  [week: string]: StudySession[];
 }
 
 export default function AIPlanGenerator() {
@@ -16,7 +16,7 @@ export default function AIPlanGenerator() {
   const [topics, setTopics] = useState("");
   const [examDate, setExamDate] = useState("");
   const [hoursPerDay, setHoursPerDay] = useState<number | "">("");
-  const [plan, setPlan] = useState<WeekPlan[]>([]);
+  const [plan, setPlan] = useState<GeneratedPlan | null>(null);
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -51,8 +51,8 @@ export default function AIPlanGenerator() {
 
       console.log("Study Plan Response:", data);
 
-      // Backend returns { weeks: [...] }
-      setPlan(data.weeks || []);
+      // Backend returns generatedPlan
+      setPlan(data.generatedPlan);
     } catch (error) {
       console.error("AI Plan Error:", error);
       alert("Failed to generate AI plan");
@@ -111,30 +111,29 @@ export default function AIPlanGenerator() {
         </button>
       </div>
 
-      {plan.length > 0 && (
+      {plan && (
         <div className="space-y-6">
-          {plan.map((week, wIndex) => (
-            <div
-              key={wIndex}
-              className="bg-white p-6 rounded-xl shadow"
-            >
-              <h2 className="text-xl font-semibold mb-4">
-                {week.week}
+          {Object.entries(plan).map(([week, sessions]) => (
+            <div key={week} className="bg-white p-6 rounded-xl shadow">
+              <h2 className="text-xl font-semibold mb-4 capitalize">
+                {week}
               </h2>
 
-              {week.days.map((day, dIndex) => (
+              {sessions.map((session, index) => (
                 <div
-                  key={dIndex}
-                  className="p-4 border rounded mb-2"
+                  key={index}
+                  className="p-4 border rounded mb-2 bg-gray-50"
                 >
-                  <p className="font-semibold">{day.day}</p>
-
-                  <p className="text-sm text-gray-600">
-                    Duration: {day.hours} hours
+                  <p className="font-semibold">
+                    {session.day} – {session.subject}
                   </p>
 
                   <p className="text-sm text-gray-600">
-                    Focus: {day.focus}
+                    Duration: {session.duration}
+                  </p>
+
+                  <p className="text-sm text-gray-600">
+                    Focus: {session.focus}
                   </p>
                 </div>
               ))}

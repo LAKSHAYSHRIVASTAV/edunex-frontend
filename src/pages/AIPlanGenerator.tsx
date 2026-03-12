@@ -25,7 +25,7 @@ export default function AIPlanGenerator() {
     "https://edunex-backend-rj22.onrender.com/api/ai/generate-plan";
 
   const generatePlan = async () => {
-    if (!subject || !examDate || !hoursPerDay || hoursPerDay < 1) {
+    if (!subject || !examDate || !hoursPerDay) {
       alert("Please fill all fields properly");
       return;
     }
@@ -33,25 +33,29 @@ export default function AIPlanGenerator() {
     try {
       setLoading(true);
 
-      const res = await fetch(BASE_URL, {
+      const response = await fetch(BASE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          subjects: subject,
+          subject,
           topics,
           examDate,
-          hoursPerDay,
+          hoursPerDay: Number(hoursPerDay),
         }),
       });
 
-      const data = await res.json();
+      if (!response.ok) {
+        throw new Error("AI plan generation failed");
+      }
+
+      const data = await response.json();
       setPlan(data.generatedPlan);
-    } catch (err) {
-      console.error("AI Plan Error:", err);
-      alert("AI plan generation failed");
+    } catch (error) {
+      console.error("AI Plan Error:", error);
+      alert("Failed to generate AI plan");
     } finally {
       setLoading(false);
     }
@@ -59,9 +63,7 @@ export default function AIPlanGenerator() {
 
   return (
     <div className="p-10 space-y-8">
-      <h1 className="text-3xl font-bold">
-        🤖 AI Smart Study Plan Generator
-      </h1>
+      <h1 className="text-3xl font-bold">🤖 AI Smart Study Plan Generator</h1>
 
       <div className="bg-white p-6 rounded-xl shadow space-y-4">
         <input
@@ -85,63 +87,45 @@ export default function AIPlanGenerator() {
           className="w-full p-2 border rounded"
         />
 
-        <div>
-          <label className="block font-medium mb-1">
-            Study Hours Per Day
-          </label>
-
-          <input
-            type="number"
-            min="1"
-            max="12"
-            placeholder="Enter hours (1–12)"
-            value={hoursPerDay}
-            onChange={(e) =>
-              setHoursPerDay(
-                e.target.value === "" ? "" : Number(e.target.value)
-              )
-            }
-            className="w-full p-2 border rounded"
-          />
-        </div>
+        <input
+          type="number"
+          min="1"
+          max="12"
+          placeholder="Study hours per day"
+          value={hoursPerDay}
+          onChange={(e) =>
+            setHoursPerDay(e.target.value === "" ? "" : Number(e.target.value))
+          }
+          className="w-full p-2 border rounded"
+        />
 
         <button
           onClick={generatePlan}
           className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
         >
-          {loading ? "Generating Plan..." : "Generate AI Plan"}
+          {loading ? "Generating..." : "Generate AI Plan"}
         </button>
       </div>
 
       {plan && (
         <div className="space-y-6">
           {Object.entries(plan).map(([week, sessions]) => (
-            <div
-              key={week}
-              className="bg-white p-6 rounded-xl shadow"
-            >
-              <h2 className="text-xl font-semibold mb-4 capitalize">
-                {week}
-              </h2>
+            <div key={week} className="bg-white p-6 rounded-xl shadow">
+              <h2 className="text-xl font-semibold mb-4">{week}</h2>
 
-              <div className="space-y-3">
-                {sessions.map((session, index) => (
-                  <div
-                    key={index}
-                    className="p-4 border rounded-lg bg-gray-50"
-                  >
-                    <p className="font-semibold">
-                      {session.day} – {session.subject}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Duration: {session.duration}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Focus: {session.focus}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              {sessions.map((session, index) => (
+                <div key={index} className="p-4 border rounded mb-2">
+                  <p className="font-semibold">
+                    {session.day} — {session.subject}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Duration: {session.duration}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Focus: {session.focus}
+                  </p>
+                </div>
+              ))}
             </div>
           ))}
         </div>

@@ -1,11 +1,22 @@
 import { useState } from "react";
 
+interface DayPlan {
+  day: string;
+  focus: string;
+  hours: number;
+}
+
+interface WeekPlan {
+  week: string;
+  days: DayPlan[];
+}
+
 export default function AIPlanGenerator() {
   const [subject, setSubject] = useState("");
   const [topics, setTopics] = useState("");
   const [examDate, setExamDate] = useState("");
   const [hoursPerDay, setHoursPerDay] = useState<number | "">("");
-  const [plan, setPlan] = useState<any[]>([]);
+  const [plan, setPlan] = useState<WeekPlan[]>([]);
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -15,14 +26,14 @@ export default function AIPlanGenerator() {
 
   const generatePlan = async () => {
     if (!subject || !topics || !examDate || !hoursPerDay) {
-      alert("Please fill all fields properly");
+      alert("Please fill all fields");
       return;
     }
 
     try {
       setLoading(true);
 
-      const response = await fetch(BASE_URL, {
+      const res = await fetch(BASE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,15 +47,16 @@ export default function AIPlanGenerator() {
         }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      console.log("AI Study Plan Response:", data);
+      console.log("API RESPONSE:", data);
 
-      // Backend returns array of weeks
-      setPlan(data);
-    } catch (error) {
-      console.error("AI Plan Error:", error);
-      alert("Failed to generate AI plan");
+      // 🔥 FIX
+      setPlan(data.generatedPlan);
+
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Failed to generate plan");
     } finally {
       setLoading(false);
     }
@@ -52,6 +64,7 @@ export default function AIPlanGenerator() {
 
   return (
     <div className="p-10 space-y-8">
+
       <h1 className="text-3xl font-bold">
         🤖 AI Smart Study Plan Generator
       </h1>
@@ -59,7 +72,7 @@ export default function AIPlanGenerator() {
       <div className="bg-white p-6 rounded-xl shadow space-y-4">
 
         <input
-          placeholder="Subject (e.g. Physics)"
+          placeholder="Subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           className="w-full p-2 border rounded"
@@ -81,9 +94,7 @@ export default function AIPlanGenerator() {
 
         <input
           type="number"
-          min="1"
-          max="12"
-          placeholder="Study hours per day"
+          placeholder="Hours per day"
           value={hoursPerDay}
           onChange={(e) =>
             setHoursPerDay(
@@ -95,46 +106,56 @@ export default function AIPlanGenerator() {
 
         <button
           onClick={generatePlan}
-          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+          className="bg-purple-600 text-white px-4 py-2 rounded"
         >
           {loading ? "Generating..." : "Generate AI Plan"}
         </button>
+
       </div>
+
+      {/* 🔥 Study Plan Display */}
 
       {plan.length > 0 && (
         <div className="space-y-6">
 
-          {plan.map((week: any, index: number) => (
-            <div key={index} className="bg-white p-6 rounded-xl shadow">
+          {plan.map((week, i) => (
+
+            <div
+              key={i}
+              className="bg-white p-6 rounded-xl shadow"
+            >
 
               <h2 className="text-xl font-semibold mb-4">
                 {week.week}
               </h2>
 
-              {week.days.map((day: any, i: number) => (
+              {week.days.map((day, index) => (
+
                 <div
-                  key={i}
-                  className="p-4 border rounded mb-2 bg-gray-50"
+                  key={index}
+                  className="border p-3 rounded mb-2 bg-gray-50"
                 >
-                  <p className="font-semibold">
-                    {day.day}
-                  </p>
+                  <p className="font-semibold">{day.day}</p>
 
                   <p className="text-sm text-gray-600">
                     Focus: {day.focus}
                   </p>
 
                   <p className="text-sm text-gray-600">
-                    Study Hours: {day.hours}
+                    Hours: {day.hours}
                   </p>
+
                 </div>
+
               ))}
 
             </div>
+
           ))}
 
         </div>
       )}
+
     </div>
   );
 }

@@ -3,6 +3,7 @@ import  Card  from '../ui/Card';
 import  Button  from '../ui/Button';
 import  ProgressTracker  from './ProgressTracker';
 import  Analytics  from './Analytics';
+import KnowledgeGraph from "../dashboard/KnowledgeGraph";
 
 const Dashboard: React.FC = () => {
     return (
@@ -21,6 +22,7 @@ const Dashboard: React.FC = () => {
             </div>
             <ProgressTracker />
             <Analytics />
+            <KnowledgeGraph />
         </div>
     );
 };

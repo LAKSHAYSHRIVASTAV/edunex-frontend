@@ -12,6 +12,7 @@ interface WeekPlan {
 }
 
 export default function AIPlanGenerator() {
+
   const [subject, setSubject] = useState("");
   const [topics, setTopics] = useState("");
   const [examDate, setExamDate] = useState("");
@@ -24,45 +25,96 @@ export default function AIPlanGenerator() {
   const BASE_URL =
     "https://edunex-backend-rj22.onrender.com/api/ai/generate-plan";
 
+  // --------------------------------
+  // GENERATE STUDY PLAN
+  // --------------------------------
+
   const generatePlan = async () => {
+
     if (!subject || !topics || !examDate || !hoursPerDay) {
       alert("Please fill all fields properly");
       return;
     }
 
     try {
+
       setLoading(true);
 
       const response = await fetch(BASE_URL, {
+
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+
         body: JSON.stringify({
           subject,
           topics,
           examDate,
           hoursPerDay: Number(hoursPerDay),
         }),
+
       });
 
       const data = await response.json();
 
       console.log("AI Study Plan Response:", data);
 
-      // 🔥 Correct structure
       setPlan(data.generatedPlan.weeks);
 
     } catch (error) {
+
       console.error("AI Plan Error:", error);
       alert("Failed to generate AI plan");
+
     } finally {
+
       setLoading(false);
+
     }
+
+  };
+
+  // --------------------------------
+  // RL PROGRESS FEEDBACK
+  // --------------------------------
+
+  const markProgress = async (topic: string, difficulty: string) => {
+
+    try {
+
+      await fetch(
+        "https://edunex-backend-rj22.onrender.com/api/progress",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            topic,
+            difficulty,
+            completed: difficulty !== "hard",
+          }),
+        }
+      );
+
+      alert("Progress saved!");
+
+    } catch (error) {
+
+      console.error("Progress save failed");
+
+    }
+
   };
 
   return (
+
     <div className="p-10 space-y-8">
 
       <h1 className="text-3xl font-bold">
@@ -138,7 +190,7 @@ export default function AIPlanGenerator() {
 
                 <div
                   key={i}
-                  className="p-4 border rounded mb-2 bg-gray-50"
+                  className="p-4 border rounded mb-3 bg-gray-50"
                 >
 
                   <p className="font-semibold">
@@ -153,6 +205,30 @@ export default function AIPlanGenerator() {
                     Study Hours: {day.hours}
                   </p>
 
+                  {/* RL FEEDBACK BUTTONS */}
+
+                  <div className="flex gap-3 mt-3">
+
+                    <button
+                      onClick={() =>
+                        markProgress(day.focus, "easy")
+                      }
+                      className="bg-green-500 text-white px-3 py-1 rounded"
+                    >
+                      ✔ Completed
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        markProgress(day.focus, "hard")
+                      }
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                      ❗ Difficult
+                    </button>
+
+                  </div>
+
                 </div>
 
               ))}
@@ -166,5 +242,6 @@ export default function AIPlanGenerator() {
       )}
 
     </div>
+
   );
 }

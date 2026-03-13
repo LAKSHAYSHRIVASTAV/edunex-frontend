@@ -26,14 +26,14 @@ export default function AIPlanGenerator() {
 
   const generatePlan = async () => {
     if (!subject || !topics || !examDate || !hoursPerDay) {
-      alert("Please fill all fields");
+      alert("Please fill all fields properly");
       return;
     }
 
     try {
       setLoading(true);
 
-      const res = await fetch(BASE_URL, {
+      const response = await fetch(BASE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,16 +47,16 @@ export default function AIPlanGenerator() {
         }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      console.log("API RESPONSE:", data);
+      console.log("AI Study Plan Response:", data);
 
-      // 🔥 FIX
-      setPlan(data.generatedPlan);
+      // 🔥 Correct structure
+      setPlan(data.generatedPlan.weeks);
 
-    } catch (err) {
-      console.error("Error:", err);
-      alert("Failed to generate plan");
+    } catch (error) {
+      console.error("AI Plan Error:", error);
+      alert("Failed to generate AI plan");
     } finally {
       setLoading(false);
     }
@@ -69,10 +69,12 @@ export default function AIPlanGenerator() {
         🤖 AI Smart Study Plan Generator
       </h1>
 
+      {/* INPUT FORM */}
+
       <div className="bg-white p-6 rounded-xl shadow space-y-4">
 
         <input
-          placeholder="Subject"
+          placeholder="Subject (e.g Physics)"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           className="w-full p-2 border rounded"
@@ -94,7 +96,9 @@ export default function AIPlanGenerator() {
 
         <input
           type="number"
-          placeholder="Hours per day"
+          min="1"
+          max="12"
+          placeholder="Study hours per day"
           value={hoursPerDay}
           onChange={(e) =>
             setHoursPerDay(
@@ -106,22 +110,23 @@ export default function AIPlanGenerator() {
 
         <button
           onClick={generatePlan}
-          className="bg-purple-600 text-white px-4 py-2 rounded"
+          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
         >
           {loading ? "Generating..." : "Generate AI Plan"}
         </button>
 
       </div>
 
-      {/* 🔥 Study Plan Display */}
+      {/* GENERATED PLAN */}
 
       {plan.length > 0 && (
+
         <div className="space-y-6">
 
-          {plan.map((week, i) => (
+          {plan.map((week, index) => (
 
             <div
-              key={i}
+              key={index}
               className="bg-white p-6 rounded-xl shadow"
             >
 
@@ -129,20 +134,23 @@ export default function AIPlanGenerator() {
                 {week.week}
               </h2>
 
-              {week.days.map((day, index) => (
+              {week.days.map((day, i) => (
 
                 <div
-                  key={index}
-                  className="border p-3 rounded mb-2 bg-gray-50"
+                  key={i}
+                  className="p-4 border rounded mb-2 bg-gray-50"
                 >
-                  <p className="font-semibold">{day.day}</p>
+
+                  <p className="font-semibold">
+                    {day.day}
+                  </p>
 
                   <p className="text-sm text-gray-600">
                     Focus: {day.focus}
                   </p>
 
                   <p className="text-sm text-gray-600">
-                    Hours: {day.hours}
+                    Study Hours: {day.hours}
                   </p>
 
                 </div>
@@ -154,6 +162,7 @@ export default function AIPlanGenerator() {
           ))}
 
         </div>
+
       )}
 
     </div>

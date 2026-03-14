@@ -10,21 +10,21 @@ import {
 } from "recharts";
 import api from "../../config/api";
 
-interface TopicData {
-  topic: string;
-  mastery: number;
+interface GraphData {
+  subject: string;
+  averageScore: number;
 }
 
 const KnowledgeGraph = () => {
-  const [data, setData] = useState<TopicData[]>([]);
+  const [data, setData] = useState<GraphData[]>([]);
 
   useEffect(() => {
     const fetchGraph = async () => {
       try {
-        const res = await api.get("/knowledge-graph");
-        setData(res.data.topics || []);
+        const res = await api.get("/analytics/knowledge-graph");
+        setData(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Knowledge Graph Error:", err);
       }
     };
 
@@ -39,13 +39,16 @@ const KnowledgeGraph = () => {
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
 
-          <XAxis dataKey="topic" />
+          {/* Subject name */}
+          <XAxis dataKey="subject" />
 
+          {/* Score percentage */}
           <YAxis domain={[0, 100]} />
 
           <Tooltip />
 
-          <Bar dataKey="mastery" />
+          {/* Average score */}
+          <Bar dataKey="averageScore" fill="#6366f1" />
         </BarChart>
       </ResponsiveContainer>
     </div>

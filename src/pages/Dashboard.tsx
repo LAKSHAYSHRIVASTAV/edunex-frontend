@@ -10,116 +10,102 @@ import ProgressRing from "../components/dashboard/ProgressRing";
 import KnowledgeGraph from "../components/dashboard/KnowledgeGraph";
 import { Sparkles } from "lucide-react";
 
-interface DashboardData {
-  readingProgress: number;
-  quizCompletion: number;
-  flashcardsReviewed: number;
-  weeklyStudyHours: number;
-  weeklyActivity: { date: string; hours: number }[];
-  subjectDistribution: { subject: string; count: number }[];
-  studyStreak: number;
-  totalHours: number;
-  avgDailyHours: number;
-
-  aiInsights?: {
-    learningState: string;
-    recommendedDifficulty: string;
-    weakestTopic: string | null;
-  };
-}
+const API = "https://edunex-backend-rj22.onrender.com/api";
 
 export default function Dashboard() {
-  const [userName, setUserName] = useState<string>("User");
-  const [dashboardData, setDashboardData] =
-    useState<DashboardData | null>(null);
+
+  const [userName, setUserName] = useState("User");
+
+  const [dashboardData, setDashboardData] = useState<any>(null);
   const [goalProgress, setGoalProgress] = useState<any>(null);
   const [recommendation, setRecommendation] = useState<any>(null);
-  const [newGoal, setNewGoal] = useState<number>(5);
+
+  const [knowledgeGraph, setKnowledgeGraph] = useState<any>({
+    labels: [],
+    scores: [],
+  });
+
+  const [learningInsights, setLearningInsights] = useState<any>(null);
+
+  const [newGoal, setNewGoal] = useState(5);
 
   const navigate = useNavigate();
 
   // ================= USER NAME =================
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
+
     if (storedUser) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser?.name) setUserName(parsedUser.name);
+        const parsed = JSON.parse(storedUser);
+        if (parsed?.name) setUserName(parsed.name);
       } catch {}
     }
   }, []);
 
-  // ================= DASHBOARD DATA =================
+  // ================= FETCH ALL DASHBOARD DATA =================
   useEffect(() => {
+
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const fetchDashboard = async () => {
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const fetchData = async () => {
       try {
-        const res = await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/dashboard",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data = await res.json();
-        setDashboardData(data);
+
+        const dashboardRes = await fetch(`${API}/analytics`, { headers });
+        const dashboard = await dashboardRes.json();
+        setDashboardData(dashboard);
+
+        const weeklyRes = await fetch(`${API}/analytics/weekly`, { headers });
+        const weekly = await weeklyRes.json();
+
+        const graphRes = await fetch(`${API}/analytics/knowledge-graph`, { headers });
+        const graph = await graphRes.json();
+        setKnowledgeGraph(graph);
+
+        const insightsRes = await fetch(`${API}/analytics/learning-insights`, { headers });
+        const insights = await insightsRes.json();
+        setLearningInsights(insights);
+
+        const goalRes = await fetch(`${API}/goals/progress`, { headers });
+        const goal = await goalRes.json();
+        setGoalProgress(goal);
+        setNewGoal(goal.weeklyQuizTarget);
+
+        const recRes = await fetch(`${API}/recommendation`, { headers });
+        const rec = await recRes.json();
+        setRecommendation(rec);
+
       } catch (err) {
-        console.log("Dashboard API error", err);
+        console.log("Dashboard fetch error", err);
       }
     };
 
-    fetchDashboard();
-  }, []);
+    fetchData();
 
-  // ================= GOAL + RECOMMENDATION =================
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const fetchExtras = async () => {
-      try {
-        const goalRes = await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/goals/progress",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const goalData = await goalRes.json();
-        setGoalProgress(goalData);
-        setNewGoal(goalData.weeklyQuizTarget);
-
-        const recRes = await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/recommendation",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        const recData = await recRes.json();
-        setRecommendation(recData);
-      } catch (err) {
-        console.log("Extras API error", err);
-      }
-    };
-
-    fetchExtras();
   }, []);
 
   // ================= UPDATE GOAL =================
   const handleUpdateGoal = async () => {
+
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-      const res = await fetch(
-        "https://edunex-backend-rj22.onrender.com/api/goals/update",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ weeklyQuizTarget: newGoal }),
-        }
-      );
+
+      const res = await fetch(`${API}/goals/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ weeklyQuizTarget: newGoal }),
+      });
 
       const data = await res.json();
+
       setGoalProgress((prev: any) => ({
         ...prev,
         weeklyQuizTarget: data.weeklyQuizTarget,
@@ -128,26 +114,27 @@ export default function Dashboard() {
           100
         ),
       }));
+
     } catch (error) {
       console.log("Goal update error", error);
     }
   };
 
   return (
+
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50">
 
       <Navbar />
 
       <div className="flex relative z-10">
+
         <Sidebar />
 
         <main className="flex-1 ml-64 px-10 py-12 space-y-12">
 
           {/* Welcome */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
+
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 mb-6">
               <Sparkles size={16} className="text-indigo-600" />
               <span className="text-sm font-semibold text-indigo-600">
@@ -162,6 +149,7 @@ export default function Dashboard() {
             <p className="text-lg text-gray-600">
               Your intelligent study ecosystem designed to maximize performance.
             </p>
+
           </motion.div>
 
           <SummaryCard />
@@ -170,30 +158,37 @@ export default function Dashboard() {
             onFlashcardsClick={() => navigate("/flashcards")}
           />
 
-          {/* AI Insights */}
-          {dashboardData?.aiInsights && (
+          {/* AI INSIGHTS */}
+          {learningInsights && (
             <div className="bg-white rounded-xl p-6 shadow">
+
               <h2 className="text-xl font-bold mb-4">
                 🧠 AI Learning Insights
               </h2>
 
-              <p>Learning Level: {dashboardData.aiInsights.learningState}</p>
               <p>
-                Recommended Quiz: {dashboardData.aiInsights.recommendedDifficulty}
+                Mastery Score: {learningInsights.masteryScore}%
               </p>
+
               <p>
-                Weak Topic: {dashboardData.aiInsights.weakestTopic || "None"}
+                Weak Topics: {learningInsights.weakTopics?.join(", ") || "None"}
               </p>
+
+              <p>
+                Strong Topics: {learningInsights.strongTopics?.join(", ") || "None"}
+              </p>
+
             </div>
           )}
 
-          {/* Weekly Goal */}
+          {/* WEEKLY GOAL */}
           {goalProgress && (
             <div className="bg-white rounded-xl p-8 shadow flex flex-col items-center">
 
               <h2 className="text-xl font-bold mb-6">🎯 Weekly Goal</h2>
 
               <div className="flex items-center gap-3 mb-6">
+
                 <input
                   type="number"
                   min="1"
@@ -208,6 +203,7 @@ export default function Dashboard() {
                 >
                   Update
                 </button>
+
               </div>
 
               <ProgressRing percentage={goalProgress.progressPercentage} />
@@ -219,17 +215,20 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Recommendation */}
+          {/* SMART RECOMMENDATION */}
           {recommendation && (
             <div className="bg-white rounded-xl p-6 shadow">
+
               <h2 className="text-xl font-bold mb-4">
                 🧠 Smart Recommendation
               </h2>
+
               <p>{recommendation.recommendation}</p>
+
             </div>
           )}
 
-          {/* Progress Chart */}
+          {/* PROGRESS CHART */}
           {dashboardData && (
             <ProgressChart dashboardData={dashboardData} />
           )}
@@ -241,11 +240,15 @@ export default function Dashboard() {
             transition={{ delay: 0.4 }}
             className="bg-white rounded-xl p-6 shadow"
           >
-            <KnowledgeGraph />
+
+            <KnowledgeGraph data={knowledgeGraph} />
+
           </motion.div>
 
         </main>
+
       </div>
+
     </div>
   );
 }

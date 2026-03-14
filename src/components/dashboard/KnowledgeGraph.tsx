@@ -1,58 +1,60 @@
-import { useEffect, useState } from "react";
+import { Bar } from "react-chartjs-2";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
   Tooltip,
-  CartesianGrid,
-  ResponsiveContainer
-} from "recharts";
-import api from "../../config/api";
+  Legend,
+} from "chart.js";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
 interface GraphData {
-  subject: string;
-  averageScore: number;
+  labels: string[];
+  scores: number[];
 }
 
-const KnowledgeGraph = () => {
-  const [data, setData] = useState<GraphData[]>([]);
+interface Props {
+  data: GraphData;
+}
 
-  useEffect(() => {
-    const fetchGraph = async () => {
-      try {
-        const res = await api.get("/analytics/knowledge-graph");
-        setData(res.data);
-      } catch (err) {
-        console.error("Knowledge Graph Error:", err);
-      }
-    };
+export default function KnowledgeGraph({ data }: Props) {
 
-    fetchGraph();
-  }, []);
+  const chartData = {
+    labels: data.labels || [],
+    datasets: [
+      {
+        label: "Average Score (%)",
+        data: data.scores || [],
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+      },
+    },
+  };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md">
-      <h2 className="text-xl font-bold mb-4">📚 Knowledge Graph</h2>
+    <div>
+      <h2 className="text-xl font-bold mb-4">📊 Knowledge Graph</h2>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-
-          {/* Subject name */}
-          <XAxis dataKey="subject" />
-
-          {/* Score percentage */}
-          <YAxis domain={[0, 100]} allowDecimals={false} />
-
-          <Tooltip />
-
-          {/* Average score */}
-          <Bar dataKey="averageScore" fill="#6366f1" />
-        </BarChart>
-      </ResponsiveContainer>
+      {data.labels.length === 0 ? (
+        <p className="text-gray-500">No quiz data yet.</p>
+      ) : (
+        <Bar data={chartData} options={options} />
+      )}
     </div>
   );
-};
-
-export default KnowledgeGraph;
+}

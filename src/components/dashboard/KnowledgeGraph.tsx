@@ -43,7 +43,7 @@ const KnowledgeGraph = () => {
           <XAxis dataKey="subject" />
 
           {/* Score percentage */}
-          <YAxis domain={[0, 100]} />
+          <YAxis domain={[0, 100]} allowDecimals={false} />
 
           <Tooltip />
 

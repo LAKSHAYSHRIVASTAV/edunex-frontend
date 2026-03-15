@@ -18,23 +18,22 @@ const API = "https://edunex-backend-rj22.onrender.com/api";
 export default function Dashboard() {
 
   const [userName, setUserName] = useState("User");
+  const [dashboardData, setDashboardData] = useState(null);
+  const [goalProgress, setGoalProgress] = useState(null);
+  const [recommendation, setRecommendation] = useState(null);
+  const [learningInsights, setLearningInsights] = useState(null);
 
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const [goalProgress, setGoalProgress] = useState<any>(null);
-  const [recommendation, setRecommendation] = useState<any>(null);
-
-  const [knowledgeGraph, setKnowledgeGraph] = useState<any>({
+  const [knowledgeGraph, setKnowledgeGraph] = useState({
     labels: [],
     scores: [],
   });
-
-  const [learningInsights, setLearningInsights] = useState<any>(null);
 
   const [newGoal, setNewGoal] = useState(5);
 
   const navigate = useNavigate();
 
-  // ================= USER NAME =================
+  /* ================= USER NAME ================= */
+
   useEffect(() => {
 
     const storedUser = localStorage.getItem("user");
@@ -48,7 +47,8 @@ export default function Dashboard() {
 
   }, []);
 
-  // ================= FETCH ALL DASHBOARD DATA =================
+  /* ================= FETCH DASHBOARD DATA ================= */
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -63,9 +63,6 @@ export default function Dashboard() {
         const dashboardRes = await fetch(`${API}/analytics`, { headers });
         const dashboard = await dashboardRes.json();
         setDashboardData(dashboard);
-
-        const weeklyRes = await fetch(`${API}/analytics/weekly`, { headers });
-        await weeklyRes.json();
 
         const graphRes = await fetch(`${API}/analytics/knowledge-graph`, { headers });
         const graph = await graphRes.json();
@@ -94,7 +91,8 @@ export default function Dashboard() {
 
   }, []);
 
-  // ================= UPDATE GOAL =================
+  /* ================= UPDATE GOAL ================= */
+
   const handleUpdateGoal = async () => {
 
     const token = localStorage.getItem("token");
@@ -113,7 +111,7 @@ export default function Dashboard() {
 
       const data = await res.json();
 
-      setGoalProgress((prev: any) => ({
+      setGoalProgress((prev) => ({
         ...prev,
         weeklyQuizTarget: data.weeklyQuizTarget,
         progressPercentage: Math.min(
@@ -140,7 +138,7 @@ export default function Dashboard() {
 
         <main className="flex-1 ml-64 px-10 py-12 space-y-12">
 
-          {/* ================= WELCOME ================= */}
+          {/* Welcome */}
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -164,17 +162,17 @@ export default function Dashboard() {
 
           </motion.div>
 
-          {/* ================= SUMMARY ================= */}
+          {/* Summary Cards */}
 
           <SummaryCard />
 
-          {/* ================= ACTION BUTTONS ================= */}
+          {/* Action Buttons */}
 
           <ActionButtons
             onFlashcardsClick={() => navigate("/flashcards")}
           />
 
-          {/* ================= AI INSIGHTS ================= */}
+          {/* AI Insights */}
 
           {learningInsights && (
             <div className="bg-white rounded-xl p-6 shadow">
@@ -196,7 +194,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ================= WEEKLY GOAL ================= */}
+          {/* Weekly Goal */}
 
           {goalProgress && (
             <div className="bg-white rounded-xl p-8 shadow flex flex-col items-center">
@@ -233,7 +231,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ================= SMART RECOMMENDATION ================= */}
+          {/* Smart Recommendation */}
 
           {recommendation && (
             <div className="bg-white rounded-xl p-6 shadow">
@@ -247,25 +245,13 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* ================= PROGRESS OVERVIEW ================= */}
+          {/* Progress Overview */}
 
           {dashboardData && (
-            <div className="bg-white rounded-xl p-6 shadow">
-
-              <h2 className="text-2xl font-bold mb-2">
-                Progress Overview
-              </h2>
-
-              <p className="text-gray-500 mb-6">
-                Track your learning journey and achievements
-              </p>
-
-              <ProgressChart dashboardData={dashboardData} />
-
-            </div>
+            <ProgressChart dashboardData={dashboardData} />
           )}
 
-          {/* ================= KNOWLEDGE GRAPH ================= */}
+          {/* Knowledge Graph */}
 
           <motion.div
             initial={{ opacity: 0 }}

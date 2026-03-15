@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+
 import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
+
 import SummaryCard from "../components/dashboard/SummaryCard";
 import ActionButtons from "../components/dashboard/ActionButtons";
 import ProgressChart from "../components/dashboard/ProgressChart";
 import ProgressRing from "../components/dashboard/ProgressRing";
 import KnowledgeGraph from "../components/dashboard/KnowledgeGraph";
+
 import { Sparkles } from "lucide-react";
 
 const API = "https://edunex-backend-rj22.onrender.com/api";
@@ -33,6 +36,7 @@ export default function Dashboard() {
 
   // ================= USER NAME =================
   useEffect(() => {
+
     const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
@@ -41,6 +45,7 @@ export default function Dashboard() {
         if (parsed?.name) setUserName(parsed.name);
       } catch {}
     }
+
   }, []);
 
   // ================= FETCH ALL DASHBOARD DATA =================
@@ -52,6 +57,7 @@ export default function Dashboard() {
     const headers = { Authorization: `Bearer ${token}` };
 
     const fetchData = async () => {
+
       try {
 
         const dashboardRes = await fetch(`${API}/analytics`, { headers });
@@ -59,7 +65,7 @@ export default function Dashboard() {
         setDashboardData(dashboard);
 
         const weeklyRes = await fetch(`${API}/analytics/weekly`, { headers });
-        const weekly = await weeklyRes.json();
+        await weeklyRes.json();
 
         const graphRes = await fetch(`${API}/analytics/knowledge-graph`, { headers });
         const graph = await graphRes.json();
@@ -81,6 +87,7 @@ export default function Dashboard() {
       } catch (err) {
         console.log("Dashboard fetch error", err);
       }
+
     };
 
     fetchData();
@@ -118,6 +125,7 @@ export default function Dashboard() {
     } catch (error) {
       console.log("Goal update error", error);
     }
+
   };
 
   return (
@@ -132,8 +140,12 @@ export default function Dashboard() {
 
         <main className="flex-1 ml-64 px-10 py-12 space-y-12">
 
-          {/* Welcome */}
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
+          {/* ================= WELCOME ================= */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
 
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 mb-6">
               <Sparkles size={16} className="text-indigo-600" />
@@ -152,13 +164,18 @@ export default function Dashboard() {
 
           </motion.div>
 
+          {/* ================= SUMMARY ================= */}
+
           <SummaryCard />
+
+          {/* ================= ACTION BUTTONS ================= */}
 
           <ActionButtons
             onFlashcardsClick={() => navigate("/flashcards")}
           />
 
-          {/* AI INSIGHTS */}
+          {/* ================= AI INSIGHTS ================= */}
+
           {learningInsights && (
             <div className="bg-white rounded-xl p-6 shadow">
 
@@ -166,9 +183,7 @@ export default function Dashboard() {
                 🧠 AI Learning Insights
               </h2>
 
-              <p>
-                Mastery Score: {learningInsights.masteryScore}%
-              </p>
+              <p>Mastery Score: {learningInsights.masteryScore}%</p>
 
               <p>
                 Weak Topics: {learningInsights.weakTopics?.join(", ") || "None"}
@@ -181,11 +196,14 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* WEEKLY GOAL */}
+          {/* ================= WEEKLY GOAL ================= */}
+
           {goalProgress && (
             <div className="bg-white rounded-xl p-8 shadow flex flex-col items-center">
 
-              <h2 className="text-xl font-bold mb-6">🎯 Weekly Goal</h2>
+              <h2 className="text-xl font-bold mb-6">
+                🎯 Weekly Goal
+              </h2>
 
               <div className="flex items-center gap-3 mb-6">
 
@@ -215,7 +233,8 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* SMART RECOMMENDATION */}
+          {/* ================= SMART RECOMMENDATION ================= */}
+
           {recommendation && (
             <div className="bg-white rounded-xl p-6 shadow">
 
@@ -228,17 +247,31 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* PROGRESS CHART */}
+          {/* ================= PROGRESS OVERVIEW ================= */}
+
           {dashboardData && (
-            <ProgressChart dashboardData={dashboardData} />
+            <div className="bg-white rounded-xl p-6 shadow">
+
+              <h2 className="text-2xl font-bold mb-2">
+                Progress Overview
+              </h2>
+
+              <p className="text-gray-500 mb-6">
+                Track your learning journey and achievements
+              </p>
+
+              <ProgressChart dashboardData={dashboardData} />
+
+            </div>
           )}
 
-          {/* KNOWLEDGE GRAPH */}
+          {/* ================= KNOWLEDGE GRAPH ================= */}
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-xl p-6 shadow"
+            className="bg-white rounded-xl p-6 shadow mt-8"
           >
 
             <KnowledgeGraph data={knowledgeGraph} />
@@ -250,7 +283,9 @@ export default function Dashboard() {
       </div>
 
     </div>
+
   );
+
 }
 
 

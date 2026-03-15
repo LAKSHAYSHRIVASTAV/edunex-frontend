@@ -18,6 +18,7 @@ const API = "https://edunex-backend-rj22.onrender.com/api";
 export default function Dashboard() {
 
   const [userName, setUserName] = useState("User");
+
   const [dashboardData, setDashboardData] = useState(null);
   const [goalProgress, setGoalProgress] = useState(null);
   const [recommendation, setRecommendation] = useState(null);
@@ -29,6 +30,8 @@ export default function Dashboard() {
   });
 
   const [newGoal, setNewGoal] = useState(5);
+
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -60,7 +63,7 @@ export default function Dashboard() {
 
       try {
 
-        const dashboardRes = await fetch(`${API}/dashboard`, { headers });;
+        const dashboardRes = await fetch(`${API}/dashboard`, { headers });
         const dashboard = await dashboardRes.json();
         setDashboardData(dashboard);
 
@@ -81,8 +84,11 @@ export default function Dashboard() {
         const rec = await recRes.json();
         setRecommendation(rec);
 
+        setLoading(false);
+
       } catch (err) {
         console.log("Dashboard fetch error", err);
+        setLoading(false);
       }
 
     };
@@ -247,8 +253,12 @@ export default function Dashboard() {
 
           {/* Progress Overview */}
 
-          {dashboardData && (
-            <ProgressChart dashboardData={dashboardData} />
+          {loading ? (
+            <div className="bg-white rounded-xl p-8 shadow animate-pulse h-64"></div>
+          ) : (
+            dashboardData && (
+              <ProgressChart dashboardData={dashboardData} />
+            )
           )}
 
           {/* Knowledge Graph */}
@@ -259,9 +269,7 @@ export default function Dashboard() {
             transition={{ delay: 0.4 }}
             className="bg-white rounded-xl p-6 shadow mt-8"
           >
-
             <KnowledgeGraph data={knowledgeGraph} />
-
           </motion.div>
 
         </main>

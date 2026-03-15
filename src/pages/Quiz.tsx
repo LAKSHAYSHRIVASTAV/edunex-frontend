@@ -7,6 +7,7 @@ export default function QuizPage() {
 
   const quiz = location.state?.quiz || [];
   const difficulty = location.state?.difficulty || "medium";
+  const subject = location.state?.subject || quiz[0]?.subject || "general";
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
@@ -19,6 +20,8 @@ export default function QuizPage() {
     correctAnswer: string;
     explanation: string;
   } | null>(null);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   if (!quiz || quiz.length === 0) {
     return (
@@ -72,21 +75,26 @@ export default function QuizPage() {
       try {
         const token = localStorage.getItem("token");
 
-        await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/ai/quiz/score",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              questions: quiz,
-              userAnswers: Object.values(answers),
-              difficulty,
-            }),
-          }
-        );
+        const finalScore = score;
+
+        const res = await fetch(`${API_URL}/ai/quiz/score`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            questions: quiz,
+            userAnswers: Object.values(answers),
+            score: finalScore,
+            totalQuestions: quiz.length,
+            difficulty: difficulty,
+            subject: subject,
+          }),
+        });
+
+        const data = await res.json();
+        console.log("Quiz saved:", data);
       } catch (error) {
         console.error("Score save error:", error);
       }
@@ -97,6 +105,10 @@ export default function QuizPage() {
     <div className="p-6 max-w-2xl mx-auto">
       {!showResult ? (
         <>
+          <h2 className="text-xl font-bold mb-2">
+            Subject: {subject.toUpperCase()}
+          </h2>
+
           <h2 className="text-xl font-bold mb-2">
             Difficulty: {difficulty.toUpperCase()}
           </h2>
@@ -187,9 +199,11 @@ export default function QuizPage() {
       ) : (
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Quiz Completed 🎉</h2>
+
           <p className="text-lg">
             Score: {score} / {quiz.length}
           </p>
+
           <p className="text-lg">
             Percentage: {Math.round((score / quiz.length) * 100)}%
           </p>
@@ -205,5 +219,3 @@ export default function QuizPage() {
     </div>
   );
 }
-
-

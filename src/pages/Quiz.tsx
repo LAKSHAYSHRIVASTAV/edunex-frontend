@@ -7,7 +7,7 @@ export default function QuizPage() {
 
   const quiz = location.state?.quiz || [];
   const difficulty = location.state?.difficulty || "medium";
-  const subject = location.state?.subject || quiz[0]?.subject || "general";
+ const subject = location.state?.subject || "general";
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});

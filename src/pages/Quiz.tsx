@@ -83,8 +83,9 @@ export default function QuizPage() {
     try {
       const token = localStorage.getItem("token");
 
-      const orderedAnswers = quiz.map((_: any, i: number) => answers[i]);
-
+      const orderedAnswers = quiz.map((_, i) =>
+  answers[i] ? answers[i].charAt(0) : null
+);
       const res = await fetch(`${API_URL}/ai/score-quiz`, {
         method: "POST",
         headers: {

@@ -77,7 +77,7 @@ export default function QuizPage() {
 
         const finalScore = score;
 
-        const res = await fetch(`${API_URL}/ai/quiz/score`, {
+        const res = await fetch(`${API_URL}/ai/score-quiz`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

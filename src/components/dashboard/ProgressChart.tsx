@@ -45,7 +45,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* WEEKLY STUDY */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="text-blue-600" size={20} />
@@ -76,7 +76,9 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
                   <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(percentage, 100)}%` }}
+                      style={{
+                        width: `${Math.max(Math.min(percentage, 100), 3)}%`
+                      }}
                     />
                   </div>
 
@@ -117,7 +119,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
         <div className="space-y-6">
 
           {/* SUBJECT DISTRIBUTION */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
             <div className="flex items-center gap-2 mb-6">
               <BookOpen className="text-green-600" size={20} />
@@ -172,7 +174,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
           </div>
 
           {/* STUDY STREAK */}
-          <div className="bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6">
+          <div className="bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
             <div className="flex items-center justify-between">
 
@@ -193,7 +195,15 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
 
               <div className="text-right">
 
-                <p className="text-5xl font-extrabold bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">
+                <p
+                  className={`text-5xl font-extrabold ${
+                    dashboardData.studyStreak >= 8
+                      ? "text-green-600"
+                      : dashboardData.studyStreak >= 4
+                      ? "text-orange-500"
+                      : "text-red-500"
+                  }`}
+                >
                   {dashboardData.studyStreak}
                 </p>
 

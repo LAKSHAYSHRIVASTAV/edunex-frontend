@@ -84,7 +84,7 @@ export default function Dashboard() {
       try {
 
         const res = await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/analytics",
+          "https://edunex-backend-rj22.onrender.com/api/dashboard",
           { headers: { Authorization: `Bearer ${token}` } }
         );
 

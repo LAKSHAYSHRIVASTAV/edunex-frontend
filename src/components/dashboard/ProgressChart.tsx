@@ -2,9 +2,6 @@ import React from "react";
 import { TrendingUp, Flame, BookOpen } from "lucide-react";
 
 interface DashboardData {
-  readingProgress: number;
-  quizCompletion: number;
-  flashcardsReviewed: number;
   weeklyActivity: { date: string; hours: number }[];
   subjectDistribution: { subject: string; count: number }[];
   studyStreak: number;
@@ -30,7 +27,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
   return (
     <div className="bg-white rounded-2xl shadow-md border border-gray-200/50 p-8 space-y-8">
 
-      {/* ================= HEADER ================= */}
+      {/* HEADER */}
       <div>
         <div className="flex items-center gap-3 mb-2">
           <div className="h-1.5 w-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
@@ -44,10 +41,10 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
         </p>
       </div>
 
-      {/* ================= WEEKLY + SUBJECT ================= */}
+      {/* WEEKLY + SUBJECT */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= WEEKLY STUDY ================= */}
+        {/* WEEKLY STUDY */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
 
           <div className="flex items-center gap-2 mb-6">
@@ -79,9 +76,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
                   <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${Math.min(percentage, 100)}%`,
-                      }}
+                      style={{ width: `${Math.min(percentage, 100)}%` }}
                     />
                   </div>
 
@@ -118,7 +113,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
 
         </div>
 
-        {/* ================= SUBJECT + STREAK ================= */}
+        {/* SUBJECT + STREAK */}
         <div className="space-y-6">
 
           {/* SUBJECT DISTRIBUTION */}
@@ -164,9 +159,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
                   <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500"
-                      style={{
-                        width: `${subject.count}%`,
-                      }}
+                      style={{ width: `${subject.count}%` }}
                     />
                   </div>
 

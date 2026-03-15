@@ -17,9 +17,16 @@ interface DashboardData {
   readingProgress: number;
   quizCompletion: number;
   flashcardsReviewed: number;
-  weeklyStudyHours: number;
+
+  totalQuizzes: number;
+  averageScore: number;
+  streak: number;
+  highestScore: number;
+  lowestScore: number;
+
   weeklyActivity: { date: string; hours: number }[];
   subjectDistribution: { subject: string; count: number }[];
+
   studyStreak: number;
   totalHours: number;
   avgDailyHours: number;
@@ -30,7 +37,6 @@ interface DashboardData {
     weakestTopic: string | null;
   };
 }
-
 interface KnowledgeGraphData {
   labels: string[];
   scores: number[];
@@ -51,8 +57,10 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
-  // ================= USER NAME =================
+  /* ================= USER NAME ================= */
+
   useEffect(() => {
+
     const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
@@ -61,34 +69,41 @@ export default function Dashboard() {
         if (parsedUser?.name) setUserName(parsedUser.name);
       } catch {}
     }
+
   }, []);
 
-  // ================= DASHBOARD =================
+  /* ================= ANALYTICS DATA ================= */
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const fetchDashboard = async () => {
+    const fetchAnalytics = async () => {
+
       try {
+
         const res = await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/dashboard",
+          "https://edunex-backend-rj22.onrender.com/api/analytics",
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const data = await res.json();
+
         setDashboardData(data);
 
       } catch (err) {
-        console.log("Dashboard API error", err);
+        console.log("Analytics API error", err);
       }
+
     };
 
-    fetchDashboard();
+    fetchAnalytics();
 
   }, []);
 
-  // ================= KNOWLEDGE GRAPH =================
+  /* ================= KNOWLEDGE GRAPH ================= */
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -117,7 +132,8 @@ export default function Dashboard() {
 
   }, []);
 
-  // ================= GOAL + RECOMMENDATION =================
+  /* ================= GOAL + RECOMMENDATION ================= */
+
   useEffect(() => {
 
     const token = localStorage.getItem("token");
@@ -154,7 +170,8 @@ export default function Dashboard() {
 
   }, []);
 
-  // ================= UPDATE GOAL =================
+  /* ================= UPDATE GOAL ================= */
+
   const handleUpdateGoal = async () => {
 
     const token = localStorage.getItem("token");
@@ -188,6 +205,7 @@ export default function Dashboard() {
     } catch (error) {
       console.log("Goal update error", error);
     }
+
   };
 
   return (
@@ -203,6 +221,7 @@ export default function Dashboard() {
         <main className="flex-1 ml-64 px-10 py-12 space-y-12">
 
           {/* Welcome */}
+
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
 
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 mb-6">
@@ -226,80 +245,14 @@ export default function Dashboard() {
 
           <ActionButtons onFlashcardsClick={() => navigate("/flashcards")} />
 
-          {/* AI Insights */}
-          {dashboardData?.aiInsights && (
-            <div className="bg-white rounded-xl p-6 shadow">
+          {/* Progress Overview */}
 
-              <h2 className="text-xl font-bold mb-4">
-                🧠 AI Learning Insights
-              </h2>
-
-              <p>Learning Level: {dashboardData.aiInsights.learningState}</p>
-
-              <p>
-                Recommended Quiz: {dashboardData.aiInsights.recommendedDifficulty}
-              </p>
-
-              <p>
-                Weak Topic: {dashboardData.aiInsights.weakestTopic || "None"}
-              </p>
-
-            </div>
-          )}
-
-          {/* Weekly Goal */}
-          {goalProgress && (
-            <div className="bg-white rounded-xl p-8 shadow flex flex-col items-center">
-
-              <h2 className="text-xl font-bold mb-6">🎯 Weekly Goal</h2>
-
-              <div className="flex items-center gap-3 mb-6">
-
-                <input
-                  type="number"
-                  min="1"
-                  value={newGoal}
-                  onChange={(e) => setNewGoal(Number(e.target.value))}
-                  className="w-20 px-2 py-1 border rounded text-center"
-                />
-
-                <button
-                  onClick={handleUpdateGoal}
-                  className="px-4 py-1 bg-indigo-600 text-white rounded"
-                >
-                  Update
-                </button>
-
-              </div>
-
-              <ProgressRing percentage={goalProgress.progressPercentage} />
-
-              <p className="mt-6">
-                {goalProgress.completed} / {goalProgress.weeklyQuizTarget} quizzes completed
-              </p>
-
-            </div>
-          )}
-
-          {/* Recommendation */}
-          {recommendation && (
-            <div className="bg-white rounded-xl p-6 shadow">
-
-              <h2 className="text-xl font-bold mb-4">
-                🧠 Smart Recommendation
-              </h2>
-
-              <p>{recommendation.recommendation}</p>
-
-            </div>
-          )}
-
-          {/* Progress Chart */}
           {dashboardData && (
             <ProgressChart dashboardData={dashboardData} />
           )}
 
           {/* Knowledge Graph */}
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -310,7 +263,9 @@ export default function Dashboard() {
           </motion.div>
 
         </main>
+
       </div>
+
     </div>
   );
 }

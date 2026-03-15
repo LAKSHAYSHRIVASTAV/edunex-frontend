@@ -60,7 +60,7 @@ export default function Dashboard() {
 
       try {
 
-        const dashboardRes = await fetch(`${API}/analytics`, { headers });
+        const dashboardRes = await fetch(`${API}/dashboard`, { headers });;
         const dashboard = await dashboardRes.json();
         setDashboardData(dashboard);
 

@@ -10,7 +10,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 export default function SummaryCard() {
   const [text, setText] = useState("");
   const [summary, setSummary] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [quizLoading, setQuizLoading] = useState(false);
   const [difficulty, setDifficulty] = useState("medium");
 
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ export default function SummaryCard() {
       return;
     }
 
-    setLoading(true);
+    setSummaryLoading(true);
     setSummary("");
 
     try {
@@ -97,25 +98,28 @@ export default function SummaryCard() {
     } catch (error: any) {
       alert(error.message || "Summary failed");
     } finally {
-      setLoading(false);
+      setSummaryLoading(false);
     }
   };
 
   // ================= QUIZ =================
 
   const generateQuiz = async () => {
-    if (!text.trim()) {
-      alert("Please enter or upload content first.");
-      return;
-    }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login again.");
-      return;
-    }
+  if (quizLoading) return; // prevents duplicate calls
 
-    setLoading(true);
+  if (!text.trim()) {
+    alert("Please enter or upload content first.");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login again.");
+    return;
+  }
+
+  setQuizLoading(true);
 
     try {
       const res = await fetch(
@@ -149,7 +153,7 @@ export default function SummaryCard() {
     } catch (error: any) {
       alert(error.message || "Quiz generation failed");
     } finally {
-      setLoading(false);
+     setQuizLoading(false);
     }
   };
 
@@ -198,20 +202,20 @@ export default function SummaryCard() {
 
       <div className="flex gap-4">
         <button
-          onClick={generateSummary}
-          disabled={loading}
-          className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl shadow hover:scale-105 transition"
-        >
-          {loading ? "Generating..." : "Generate Summary"}
-        </button>
+  onClick={generateSummary}
+  disabled={summaryLoading}
+  className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl shadow hover:scale-105 transition"
+>
+  {summaryLoading ? "Generating..." : "Generate Summary"}
+</button>
 
         <button
-          onClick={generateQuiz}
-          disabled={loading}
-          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow hover:scale-105 transition"
-        >
-          {loading ? "Generating..." : "Generate Quiz"}
-        </button>
+  onClick={generateQuiz}
+  disabled={quizLoading}
+  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow hover:scale-105 transition"
+>
+  {quizLoading ? "Generating..." : "Generate Quiz"}
+</button>
       </div>
 
       {summary && (

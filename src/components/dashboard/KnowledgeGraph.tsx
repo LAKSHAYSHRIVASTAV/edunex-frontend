@@ -13,6 +13,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 interface GraphData {
   labels: string[];
   scores: number[];
+  colors?: string[];
 }
 
 interface Props {
@@ -27,6 +28,8 @@ export default function KnowledgeGraph({ data }: Props) {
       {
         label: "Average Score (%)",
         data: data.scores || [],
+        backgroundColor: data.colors || "#94A3B8",
+        borderRadius: 8,
       },
     ],
   };

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -17,8 +18,11 @@ const API = "https://edunex-backend-rj22.onrender.com/api";
 
 export default function Dashboard() {
 
+  const navigate = useNavigate();
+
   const [userName, setUserName] = useState("User");
-  const [dashboardData, setDashboardData] = useState(null);
+
+  const [progressOverview, setProgressOverview] = useState(null);
   const [goalProgress, setGoalProgress] = useState(null);
   const [recommendation, setRecommendation] = useState(null);
   const [learningInsights, setLearningInsights] = useState(null);
@@ -31,11 +35,10 @@ export default function Dashboard() {
   const [newGoal, setNewGoal] = useState(5);
   const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
-
   /* ================= USER NAME ================= */
 
   useEffect(() => {
+
     const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
@@ -44,6 +47,7 @@ export default function Dashboard() {
         if (parsed?.name) setUserName(parsed.name);
       } catch {}
     }
+
   }, []);
 
   /* ================= FETCH DASHBOARD DATA ================= */
@@ -57,60 +61,47 @@ export default function Dashboard() {
       Authorization: `Bearer ${token}`,
     };
 
-    const fetchData = async () => {
+    const fetchDashboard = async () => {
 
       try {
 
-        /* ===== PROGRESS OVERVIEW ===== */
+        /* PROGRESS OVERVIEW */
 
-        const dashboardRes = await fetch(
-          `${API}/analytics/progress-overview`,
-          { headers }
-        );
+        fetch(`${API}/analytics/progress-overview`, { headers })
+          .then(res => res.json())
+          .then(data => setProgressOverview(data))
+          .catch(() => {});
 
-        const dashboard = await dashboardRes.json();
-        setDashboardData(dashboard);
+        /* KNOWLEDGE GRAPH */
 
-        /* ===== KNOWLEDGE GRAPH ===== */
+        fetch(`${API}/analytics/knowledge-graph`, { headers })
+          .then(res => res.json())
+          .then(data => setKnowledgeGraph(data))
+          .catch(() => {});
 
-        const graphRes = await fetch(
-          `${API}/analytics/knowledge-graph`,
-          { headers }
-        );
+        /* AI LEARNING INSIGHTS */
 
-        const graph = await graphRes.json();
-        setKnowledgeGraph(graph);
+        fetch(`${API}/analytics/learning-insights`, { headers })
+          .then(res => res.json())
+          .then(data => setLearningInsights(data))
+          .catch(() => {});
 
-        /* ===== AI LEARNING INSIGHTS ===== */
+        /* WEEKLY GOAL */
 
-        const insightsRes = await fetch(
-          `${API}/analytics/learning-insights`,
-          { headers }
-        );
+        fetch(`${API}/goals/progress`, { headers })
+          .then(res => res.json())
+          .then(data => {
+            setGoalProgress(data);
+            setNewGoal(data.weeklyQuizTarget);
+          })
+          .catch(() => {});
 
-        const insights = await insightsRes.json();
-        setLearningInsights(insights);
+        /* SMART RECOMMENDATION */
 
-        /* ===== WEEKLY GOAL ===== */
-
-        const goalRes = await fetch(
-          `${API}/goals/progress`,
-          { headers }
-        );
-
-        const goal = await goalRes.json();
-        setGoalProgress(goal);
-        setNewGoal(goal.weeklyQuizTarget);
-
-        /* ===== SMART RECOMMENDATION ===== */
-
-        const recRes = await fetch(
-          `${API}/recommendation`,
-          { headers }
-        );
-
-        const rec = await recRes.json();
-        setRecommendation(rec);
+        fetch(`${API}/recommendation`, { headers })
+          .then(res => res.json())
+          .then(data => setRecommendation(data))
+          .catch(() => {});
 
         setLoading(false);
 
@@ -123,7 +114,7 @@ export default function Dashboard() {
 
     };
 
-    fetchData();
+    fetchDashboard();
 
   }, []);
 
@@ -149,19 +140,19 @@ export default function Dashboard() {
 
       const data = await res.json();
 
-      setGoalProgress((prev) => ({
+      setGoalProgress(prev => ({
         ...prev,
         weeklyQuizTarget: data.weeklyQuizTarget,
         progressPercentage: Math.min(
-          Math.round(
-            (prev.completed / data.weeklyQuizTarget) * 100
-          ),
+          Math.round((prev.completed / data.weeklyQuizTarget) * 100),
           100
         ),
       }));
 
     } catch (error) {
+
       console.log("Goal update error", error);
+
     }
 
   };
@@ -202,11 +193,7 @@ export default function Dashboard() {
 
           </motion.div>
 
-          {/* Summary Cards */}
-
           <SummaryCard />
-
-          {/* Action Buttons */}
 
           <ActionButtons
             onFlashcardsClick={() => navigate("/flashcards")}
@@ -216,7 +203,6 @@ export default function Dashboard() {
 
           {learningInsights && (
             <div className="bg-white rounded-xl p-6 shadow">
-
               <h2 className="text-xl font-bold mb-4">
                 🧠 AI Learning Insights
               </h2>
@@ -230,7 +216,6 @@ export default function Dashboard() {
               <p>
                 Strong Topics: {learningInsights.strongTopics?.join(", ") || "None"}
               </p>
-
             </div>
           )}
 
@@ -275,13 +260,11 @@ export default function Dashboard() {
 
           {recommendation && (
             <div className="bg-white rounded-xl p-6 shadow">
-
               <h2 className="text-xl font-bold mb-4">
                 🧠 Smart Recommendation
               </h2>
 
               <p>{recommendation.recommendation}</p>
-
             </div>
           )}
 
@@ -290,8 +273,8 @@ export default function Dashboard() {
           {loading ? (
             <div className="bg-white rounded-xl p-8 shadow animate-pulse h-64"></div>
           ) : (
-            dashboardData && (
-              <ProgressChart dashboardData={dashboardData} />
+            progressOverview && (
+              <ProgressChart dashboardData={progressOverview} />
             )
           )}
 

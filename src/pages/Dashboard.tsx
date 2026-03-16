@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import Navbar from "../components/layout/Navbar";
@@ -19,6 +18,7 @@ const API = "https://edunex-backend-rj22.onrender.com/api";
 export default function Dashboard() {
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [userName, setUserName] = useState("User");
 
@@ -65,30 +65,34 @@ export default function Dashboard() {
 
       try {
 
-        /* PROGRESS OVERVIEW */
-
-        fetch(`${API}/analytics/progress-overview`, { headers })
+        fetch(`${API}/analytics/progress-overview`, {
+          headers,
+          cache: "no-store"
+        })
           .then(res => res.json())
           .then(data => setProgressOverview(data))
           .catch(() => {});
 
-        /* KNOWLEDGE GRAPH */
-
-        fetch(`${API}/analytics/knowledge-graph`, { headers })
+        fetch(`${API}/analytics/knowledge-graph`, {
+          headers,
+          cache: "no-store"
+        })
           .then(res => res.json())
           .then(data => setKnowledgeGraph(data))
           .catch(() => {});
 
-        /* AI LEARNING INSIGHTS */
-
-        fetch(`${API}/analytics/learning-insights`, { headers })
+        fetch(`${API}/analytics/learning-insights`, {
+          headers,
+          cache: "no-store"
+        })
           .then(res => res.json())
           .then(data => setLearningInsights(data))
           .catch(() => {});
 
-        /* WEEKLY GOAL */
-
-        fetch(`${API}/goals/progress`, { headers })
+        fetch(`${API}/goals/progress`, {
+          headers,
+          cache: "no-store"
+        })
           .then(res => res.json())
           .then(data => {
             setGoalProgress(data);
@@ -96,9 +100,10 @@ export default function Dashboard() {
           })
           .catch(() => {});
 
-        /* SMART RECOMMENDATION */
-
-        fetch(`${API}/recommendation`, { headers })
+        fetch(`${API}/recommendation`, {
+          headers,
+          cache: "no-store"
+        })
           .then(res => res.json())
           .then(data => setRecommendation(data))
           .catch(() => {});
@@ -116,7 +121,7 @@ export default function Dashboard() {
 
     fetchDashboard();
 
-  }, []);
+  }, [location]);
 
   /* ================= UPDATE GOAL ================= */
 

@@ -1,33 +1,61 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
-interface StudyData {
-  subject: string;
-  hoursStudied: number;
-  progress: number;
+export interface DashboardData {
+  weeklyHours: {
+    Mon: number;
+    Tue: number;
+    Wed: number;
+    Thu: number;
+    Fri: number;
+    Sat: number;
+    Sun: number;
+  };
+  subjectDistribution: { subject: string; percentage: number }[];
+  totalHours: number;
+  avgDaily: number;
+  streak?: number;
 }
 
 const useStudyData = () => {
-  const [studyData, setStudyData] = useState<StudyData[]>([]);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Simulate fetching data
     const fetchData = async () => {
       setLoading(true);
-      // Dummy data for initial development
-      const dummyData: StudyData[] = [
-        { subject: 'Mathematics', hoursStudied: 10, progress: 70 },
-        { subject: 'Science', hoursStudied: 8, progress: 50 },
-        { subject: 'History', hoursStudied: 5, progress: 30 },
-      ];
-      setStudyData(dummyData);
+
+      // Dummy data
+      const data: DashboardData = {
+        weeklyHours: {
+          Mon: 2,
+          Tue: 3,
+          Wed: 1,
+          Thu: 4,
+          Fri: 2,
+          Sat: 5,
+          Sun: 3,
+        },
+
+        subjectDistribution: [
+          { subject: "Mathematics", percentage: 35 },
+          { subject: "Science", percentage: 30 },
+          { subject: "History", percentage: 20 },
+          { subject: "AI", percentage: 15 },
+        ],
+
+        totalHours: 20,
+        avgDaily: 2.8,
+        streak: 5,
+      };
+
+      setDashboardData(data);
       setLoading(false);
     };
 
     fetchData();
   }, []);
 
-  return { studyData, loading };
+  return { dashboardData, loading };
 };
 
 export default useStudyData;

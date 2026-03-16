@@ -8,7 +8,6 @@ import Sidebar from "../layout/Sidebar";
 import SummaryCard from "../dashboard/SummaryCard";
 import ActionButtons from "../dashboard/ActionButtons";
 import ProgressChart from "../dashboard/ProgressChart";
-import ProgressRing from "../dashboard/ProgressRing";
 import KnowledgeGraph from "../dashboard/KnowledgeGraph";
 
 import { Sparkles } from "lucide-react";
@@ -37,6 +36,7 @@ interface DashboardData {
     weakestTopic: string | null;
   };
 }
+
 interface KnowledgeGraphData {
   labels: string[];
   scores: number[];
@@ -46,10 +46,6 @@ export default function Dashboard() {
 
   const [userName, setUserName] = useState<string>("User");
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
-  const [goalProgress, setGoalProgress] = useState<any>(null);
-  const [recommendation, setRecommendation] = useState<any>(null);
-  const [newGoal, setNewGoal] = useState<number>(5);
-
   const [knowledgeGraph, setKnowledgeGraph] = useState<KnowledgeGraphData>({
     labels: [],
     scores: [],
@@ -132,81 +128,31 @@ export default function Dashboard() {
 
   }, []);
 
-  /* ================= GOAL + RECOMMENDATION ================= */
+  /* ================= DATA TRANSFORM FOR CHART ================= */
 
-  useEffect(() => {
+  const chartData = dashboardData
+    ? {
+        weeklyHours: {
+          Mon: dashboardData.weeklyActivity?.[0]?.hours || 0,
+          Tue: dashboardData.weeklyActivity?.[1]?.hours || 0,
+          Wed: dashboardData.weeklyActivity?.[2]?.hours || 0,
+          Thu: dashboardData.weeklyActivity?.[3]?.hours || 0,
+          Fri: dashboardData.weeklyActivity?.[4]?.hours || 0,
+          Sat: dashboardData.weeklyActivity?.[5]?.hours || 0,
+          Sun: dashboardData.weeklyActivity?.[6]?.hours || 0,
+        },
 
-    const token = localStorage.getItem("token");
-    if (!token) return;
+        subjectDistribution:
+          dashboardData.subjectDistribution?.map((s) => ({
+            subject: s.subject,
+            percentage: s.count,
+          })) || [],
 
-    const fetchExtras = async () => {
-
-      try {
-
-        const goalRes = await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/goals/progress",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const goalData = await goalRes.json();
-        setGoalProgress(goalData);
-        setNewGoal(goalData.weeklyQuizTarget);
-
-        const recRes = await fetch(
-          "https://edunex-backend-rj22.onrender.com/api/recommendation",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const recData = await recRes.json();
-        setRecommendation(recData);
-
-      } catch (err) {
-        console.log("Extras API error", err);
+        totalHours: dashboardData.totalHours || 0,
+        avgDaily: dashboardData.avgDailyHours || 0,
+        streak: dashboardData.studyStreak || 0,
       }
-
-    };
-
-    fetchExtras();
-
-  }, []);
-
-  /* ================= UPDATE GOAL ================= */
-
-  const handleUpdateGoal = async () => {
-
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-
-      const res = await fetch(
-        "https://edunex-backend-rj22.onrender.com/api/goals/update",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ weeklyQuizTarget: newGoal }),
-        }
-      );
-
-      const data = await res.json();
-
-      setGoalProgress((prev: any) => ({
-        ...prev,
-        weeklyQuizTarget: data.weeklyQuizTarget,
-        progressPercentage: Math.min(
-          Math.round((prev.completed / data.weeklyQuizTarget) * 100),
-          100
-        ),
-      }));
-
-    } catch (error) {
-      console.log("Goal update error", error);
-    }
-
-  };
+    : null;
 
   return (
 
@@ -222,7 +168,10 @@ export default function Dashboard() {
 
           {/* Welcome */}
 
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
 
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 mb-6">
               <Sparkles size={16} className="text-indigo-600" />
@@ -241,14 +190,18 @@ export default function Dashboard() {
 
           </motion.div>
 
+          {/* Summary Cards */}
+
           <SummaryCard />
+
+          {/* Action Buttons */}
 
           <ActionButtons onFlashcardsClick={() => navigate("/flashcards")} />
 
           {/* Progress Overview */}
 
-          {dashboardData && (
-            <ProgressChart dashboardData={dashboardData} />
+          {chartData && (
+            <ProgressChart dashboardData={chartData} />
           )}
 
           {/* Knowledge Graph */}

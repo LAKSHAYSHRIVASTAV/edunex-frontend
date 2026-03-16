@@ -2,11 +2,19 @@ import React from "react";
 import { TrendingUp, Flame, BookOpen } from "lucide-react";
 
 interface DashboardData {
-  weeklyActivity: { date: string; hours: number }[];
-  subjectDistribution: { subject: string; count: number }[];
-  studyStreak: number;
+  weeklyHours: {
+    Mon: number;
+    Tue: number;
+    Wed: number;
+    Thu: number;
+    Fri: number;
+    Sat: number;
+    Sun: number;
+  };
+  subjectDistribution: { subject: string; percentage: number }[];
   totalHours: number;
-  avgDailyHours: number;
+  avgDaily: number;
+  streak?: number;
 }
 
 interface Props {
@@ -14,9 +22,16 @@ interface Props {
 }
 
 const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
+
   if (!dashboardData) return null;
 
-  const weeklyData = dashboardData.weeklyActivity || [];
+  const weeklyHours = dashboardData.weeklyHours || {};
+
+  const weeklyData = Object.keys(weeklyHours).map((day) => ({
+    date: day,
+    hours: (weeklyHours as any)[day] / 60
+  }));
+
   const subjects = dashboardData.subjectDistribution || [];
 
   const maxHours =
@@ -41,11 +56,10 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
         </p>
       </div>
 
-      {/* WEEKLY + SUBJECT */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* WEEKLY STUDY */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
 
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="text-blue-600" size={20} />
@@ -69,13 +83,13 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
                     </span>
 
                     <span className="font-bold text-gray-600">
-                      {day.hours}h
+                      {day.hours.toFixed(1)}h
                     </span>
                   </div>
 
                   <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"
                       style={{
                         width: `${Math.max(Math.min(percentage, 100), 3)}%`
                       }}
@@ -107,7 +121,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
               </p>
 
               <p className="text-lg font-bold text-purple-600 mt-1">
-                {dashboardData.avgDailyHours}h
+                {dashboardData.avgDaily}h
               </p>
             </div>
 
@@ -119,7 +133,7 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
         <div className="space-y-6">
 
           {/* SUBJECT DISTRIBUTION */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
 
             <div className="flex items-center gap-2 mb-6">
               <BookOpen className="text-green-600" size={20} />
@@ -136,32 +150,20 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
 
                   <div className="flex justify-between items-center">
 
-                    <div className="flex items-center gap-2">
-
-                      <span className="text-lg">
-                        {idx === 0 ? "📐" :
-                         idx === 1 ? "⚛️" :
-                         idx === 2 ? "🧪" :
-                         idx === 3 ? "🔬" :
-                         "📚"}
-                      </span>
-
-                      <span className="text-sm font-medium text-gray-900">
-                        {subject.subject}
-                      </span>
-
-                    </div>
+                    <span className="text-sm font-medium text-gray-900">
+                      {subject.subject}
+                    </span>
 
                     <span className="text-sm font-bold text-gray-700">
-                      {subject.count}%
+                      {subject.percentage}%
                     </span>
 
                   </div>
 
                   <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500"
-                      style={{ width: `${subject.count}%` }}
+                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                      style={{ width: `${subject.percentage}%` }}
                     />
                   </div>
 
@@ -174,14 +176,14 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
           </div>
 
           {/* STUDY STREAK */}
-          <div className="bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6">
 
             <div className="flex items-center justify-between">
 
               <div>
 
                 <div className="flex items-center gap-2 mb-2">
-                  <Flame className="text-orange-600 animate-pulse" size={24} />
+                  <Flame className="text-orange-600" size={24} />
                   <h3 className="text-lg font-bold text-gray-900">
                     Study Streak
                   </h3>
@@ -195,16 +197,8 @@ const ProgressChart: React.FC<Props> = ({ dashboardData }) => {
 
               <div className="text-right">
 
-                <p
-                  className={`text-5xl font-extrabold ${
-                    dashboardData.studyStreak >= 8
-                      ? "text-green-600"
-                      : dashboardData.studyStreak >= 4
-                      ? "text-orange-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {dashboardData.studyStreak}
+                <p className="text-5xl font-extrabold text-orange-500">
+                  {dashboardData.streak || 0}
                 </p>
 
                 <p className="text-sm text-gray-600 font-medium">

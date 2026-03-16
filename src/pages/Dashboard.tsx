@@ -18,7 +18,6 @@ const API = "https://edunex-backend-rj22.onrender.com/api";
 export default function Dashboard() {
 
   const [userName, setUserName] = useState("User");
-
   const [dashboardData, setDashboardData] = useState(null);
   const [goalProgress, setGoalProgress] = useState(null);
   const [recommendation, setRecommendation] = useState(null);
@@ -30,7 +29,6 @@ export default function Dashboard() {
   });
 
   const [newGoal, setNewGoal] = useState(5);
-
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -38,7 +36,6 @@ export default function Dashboard() {
   /* ================= USER NAME ================= */
 
   useEffect(() => {
-
     const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
@@ -47,7 +44,6 @@ export default function Dashboard() {
         if (parsed?.name) setUserName(parsed.name);
       } catch {}
     }
-
   }, []);
 
   /* ================= FETCH DASHBOARD DATA ================= */
@@ -57,38 +53,72 @@ export default function Dashboard() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const headers = { Authorization: `Bearer ${token}` };
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
 
     const fetchData = async () => {
 
       try {
 
-        const dashboardRes = await fetch(`${API}/dashboard`, { headers });
+        /* ===== PROGRESS OVERVIEW ===== */
+
+        const dashboardRes = await fetch(
+          `${API}/analytics/progress-overview`,
+          { headers }
+        );
+
         const dashboard = await dashboardRes.json();
         setDashboardData(dashboard);
 
-        const graphRes = await fetch(`${API}/analytics/knowledge-graph`, { headers });
+        /* ===== KNOWLEDGE GRAPH ===== */
+
+        const graphRes = await fetch(
+          `${API}/analytics/knowledge-graph`,
+          { headers }
+        );
+
         const graph = await graphRes.json();
         setKnowledgeGraph(graph);
 
-        const insightsRes = await fetch(`${API}/analytics/learning-insights`, { headers });
+        /* ===== AI LEARNING INSIGHTS ===== */
+
+        const insightsRes = await fetch(
+          `${API}/analytics/learning-insights`,
+          { headers }
+        );
+
         const insights = await insightsRes.json();
         setLearningInsights(insights);
 
-        const goalRes = await fetch(`${API}/goals/progress`, { headers });
+        /* ===== WEEKLY GOAL ===== */
+
+        const goalRes = await fetch(
+          `${API}/goals/progress`,
+          { headers }
+        );
+
         const goal = await goalRes.json();
         setGoalProgress(goal);
         setNewGoal(goal.weeklyQuizTarget);
 
-        const recRes = await fetch(`${API}/recommendation`, { headers });
+        /* ===== SMART RECOMMENDATION ===== */
+
+        const recRes = await fetch(
+          `${API}/recommendation`,
+          { headers }
+        );
+
         const rec = await recRes.json();
         setRecommendation(rec);
 
         setLoading(false);
 
       } catch (err) {
+
         console.log("Dashboard fetch error", err);
         setLoading(false);
+
       }
 
     };
@@ -112,7 +142,9 @@ export default function Dashboard() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ weeklyQuizTarget: newGoal }),
+        body: JSON.stringify({
+          weeklyQuizTarget: newGoal,
+        }),
       });
 
       const data = await res.json();
@@ -121,7 +153,9 @@ export default function Dashboard() {
         ...prev,
         weeklyQuizTarget: data.weeklyQuizTarget,
         progressPercentage: Math.min(
-          Math.round((prev.completed / data.weeklyQuizTarget) * 100),
+          Math.round(
+            (prev.completed / data.weeklyQuizTarget) * 100
+          ),
           100
         ),
       }));
@@ -281,7 +315,6 @@ export default function Dashboard() {
   );
 
 }
-
 
 
 

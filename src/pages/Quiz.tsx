@@ -5,9 +5,16 @@ export default function QuizPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const quiz = location.state?.quiz || [];
-  const difficulty = location.state?.difficulty || "medium";
-  const subject = location.state?.subject || "General";
+  /* -------- SAFE QUIZ LOADING -------- */
+
+  const savedQuiz = sessionStorage.getItem("quizData");
+
+  const quizData: any =
+    location.state || (savedQuiz ? JSON.parse(savedQuiz) : null);
+
+  const quiz = quizData?.quiz || [];
+  const difficulty = quizData?.difficulty || "medium";
+  const subject = quizData?.subject || "General";
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
@@ -21,6 +28,12 @@ export default function QuizPage() {
   } | null>(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
+
+  /* -------- SAVE QUIZ TO SESSION STORAGE -------- */
+
+  if (location.state && !savedQuiz) {
+    sessionStorage.setItem("quizData", JSON.stringify(location.state));
+  }
 
   if (!quiz.length) {
     return (
@@ -83,9 +96,10 @@ export default function QuizPage() {
     try {
       const token = localStorage.getItem("token");
 
-      const orderedAnswers = quiz.map((_, i) =>
-  answers[i] ? answers[i].charAt(0) : null
-);
+      const orderedAnswers = quiz.map((_: any, i: number) =>
+        answers[i] ? answers[i].charAt(0) : null
+      );
+
       const res = await fetch(`${API_URL}/ai/score-quiz`, {
         method: "POST",
         headers: {
@@ -101,8 +115,8 @@ export default function QuizPage() {
       });
 
       const data = await res.json();
-
       console.log("Quiz saved:", data);
+
     } catch (error) {
       console.error("Score save error:", error);
     }
@@ -124,7 +138,10 @@ export default function QuizPage() {
         <p className="text-lg mb-6">Percentage: {percentage}%</p>
 
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => {
+            sessionStorage.removeItem("quizData");
+            navigate("/dashboard");
+          }}
           className="px-6 py-2 bg-blue-600 text-white rounded"
         >
           Back to Dashboard

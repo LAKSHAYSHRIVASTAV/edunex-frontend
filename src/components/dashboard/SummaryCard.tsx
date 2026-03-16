@@ -136,14 +136,15 @@ export default function SummaryCard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message);
 
-      const questions = data.quiz?.questions;
+      const questions = data.quiz;
 
       navigate("/quiz", {
-        state: {
-          quiz: questions,
-          difficulty,
-        },
-      });
+  state: {
+    quiz: questions,
+    difficulty: data.difficulty,
+    subject: data.subject,
+  },
+});
 
     } catch (error: any) {
       alert(error.message || "Quiz generation failed");

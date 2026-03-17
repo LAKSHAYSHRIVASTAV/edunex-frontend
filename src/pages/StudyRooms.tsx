@@ -60,29 +60,50 @@ export default function StudyRooms() {
   };
 
   return (
-    <div className="min-h-screen flex text-gray-800 
-    bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen flex text-gray-800 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
 
       {/* ================= SIDEBAR ================= */}
-      <div className="w-64 p-4 bg-white/60 backdrop-blur-xl border-r border-gray-200 shadow-md rounded-r-3xl">
+      <div className="w-64 p-5 bg-white/60 backdrop-blur-xl border-r border-gray-200 shadow-lg rounded-r-3xl">
 
-        <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
-          📚 Rooms
+        <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-700">
+          📚 <span className="tracking-wide">Study Rooms</span>
         </h2>
 
         {rooms.map((room) => (
           <motion.div
-            whileHover={{ scale: 1.05 }}
             key={room._id}
+            whileHover={{ scale: 1.05, x: 5 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setSelectedRoom(room)}
-            className={`p-3 rounded-xl mb-3 cursor-pointer transition flex items-center gap-2
+            className={`group relative flex items-center gap-3 px-4 py-3 rounded-2xl mb-3 cursor-pointer transition-all duration-300
+            ${
+              selectedRoom?._id === room._id
+                ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg"
+                : "bg-white/50 hover:bg-white/80 text-gray-700"
+            }`}
+          >
+
+            {/* ICON */}
+            <div className={`w-9 h-9 flex items-center justify-center rounded-xl text-sm font-bold
               ${
                 selectedRoom?._id === room._id
-                  ? "bg-gradient-to-r from-indigo-200 to-purple-200 text-indigo-700 shadow-md"
-                  : "hover:bg-white/80"
+                  ? "bg-white/20 text-white"
+                  : "bg-gradient-to-r from-indigo-400 to-purple-400 text-white"
               }`}
-          >
-            📘 {room.name}
+            >
+              📘
+            </div>
+
+            {/* NAME */}
+            <span className="font-medium tracking-wide">
+              {room.name}
+            </span>
+
+            {/* ACTIVE DOT */}
+            {selectedRoom?._id === room._id && (
+              <span className="absolute right-3 w-2 h-2 bg-white rounded-full animate-pulse"></span>
+            )}
+
           </motion.div>
         ))}
       </div>
@@ -134,7 +155,7 @@ export default function StudyRooms() {
                 </div>
               ) : (
                 messages.map((msg, index) => {
-                  const isUser = msg.user?.name === "Test User"; // replace later dynamically
+                  const isUser = msg.user?.name === "Test User";
 
                   return (
                     <motion.div

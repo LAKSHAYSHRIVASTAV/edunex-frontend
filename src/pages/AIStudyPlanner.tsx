@@ -28,7 +28,6 @@ export default function AIStudyPlanner() {
   const [subject, setSubject] = useState("");
   const [date, setDate] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-
   const [showConfetti, setShowConfetti] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -36,13 +35,11 @@ export default function AIStudyPlanner() {
   const BASE_URL =
     "https://edunex-backend-rj22.onrender.com/api/study-plan";
 
-  // FETCH TASKS
   const fetchTasks = async () => {
     try {
       const res = await fetch(BASE_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const data = await res.json();
       setTasks(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -54,7 +51,6 @@ export default function AIStudyPlanner() {
     fetchTasks();
   }, []);
 
-  // ADD TASK
   const addTask = async () => {
     if (!title || !subject || !date) return;
 
@@ -73,7 +69,6 @@ export default function AIStudyPlanner() {
     fetchTasks();
   };
 
-  // TOGGLE COMPLETE
   const toggleComplete = async (id: string) => {
     await fetch(`${BASE_URL}/${id}`, {
       method: "PUT",
@@ -86,7 +81,6 @@ export default function AIStudyPlanner() {
     fetchTasks();
   };
 
-  // DELETE
   const deleteTask = async (id: string) => {
     await fetch(`${BASE_URL}/${id}`, {
       method: "DELETE",
@@ -111,155 +105,150 @@ export default function AIStudyPlanner() {
   ];
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex text-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex text-gray-800">
 
-    {showConfetti && <Confetti />}
+      {showConfetti && <Confetti />}
 
-    {/* MAIN CONTENT WRAPPER */}
-    <div className="flex-1 p-6">
+      <div className="flex-1 p-6">
 
-      {/* INNER GRADIENT PANEL */}
-      <div className="min-h-screen rounded-3xl p-6 text-white bg-gradient-to-br from-[#5f5cff] via-[#8b5cf6] to-[#ec4899] shadow-xl">
+        {/* 🔥 IMPORTANT CHANGE: removed min-h-screen */}
+        <div className="rounded-3xl p-6 text-white bg-gradient-to-br from-[#5f5cff] via-[#8b5cf6] to-[#ec4899] shadow-xl">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-4xl font-bold">
-            🚀 AI Study Planner
-          </h1>
+          {/* HEADER */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-4xl font-bold">
+              🚀 AI Study Planner
+            </h1>
 
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="px-4 py-2 bg-white/20 backdrop-blur-lg rounded-xl hover:scale-105 transition"
-          >
-            ← Dashboard
-          </button>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-
-          {/* LEFT */}
-          <div className="md:col-span-2 space-y-6">
-
-            {/* ADD TASK */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-xl"
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="px-4 py-2 bg-white/20 backdrop-blur-lg rounded-xl hover:scale-105 transition"
             >
-              <input
-                placeholder="Task title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
-              />
-
-              <input
-                placeholder="Subject"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
-              />
-
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
-              />
-
-              <button
-                onClick={addTask}
-                className="w-full bg-gradient-to-r from-indigo-400 to-pink-500 py-2 rounded-xl font-semibold"
-              >
-                ➕ Add Task
-              </button>
-            </motion.div>
-
-            {/* TASKS */}
-            <div className="space-y-4">
-              {tasks.map((task) => (
-                <motion.div
-                  key={task._id}
-                  whileHover={{ scale: 1.02 }}
-                  className={`p-4 rounded-xl shadow flex justify-between ${
-                    task.completed
-                      ? "bg-green-500/20"
-                      : "bg-white/10 backdrop-blur-xl"
-                  }`}
-                >
-                  <div>
-                    <p className="font-bold">{task.title}</p>
-                    <p className="text-sm text-gray-200">
-                      {task.subject} —{" "}
-                      {new Date(task.date).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => toggleComplete(task._id)}
-                      className="bg-green-500 px-3 py-1 rounded"
-                    >
-                      ✓
-                    </button>
-
-                    <button
-                      onClick={() => deleteTask(task._id)}
-                      className="bg-red-500 px-3 py-1 rounded"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+              ← Dashboard
+            </button>
           </div>
 
-          {/* RIGHT PANEL */}
-          <div className="space-y-6">
+          <div className="grid md:grid-cols-3 gap-6">
 
-            {/* CALENDAR */}
-            <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
-              <Calendar
-                onChange={(value) => {
-                  if (value instanceof Date) setSelectedDate(value);
-                  else if (Array.isArray(value)) setSelectedDate(value[0]);
-                }}
-                value={selectedDate}
-              />
-            </div>
+            {/* LEFT */}
+            <div className="md:col-span-2 space-y-6">
 
-            {/* PROGRESS */}
-            <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
-              <p>Progress: {progress}%</p>
-              <div className="w-full bg-gray-300 h-3 rounded mt-2">
-                <div
-                  className="bg-green-400 h-3 rounded"
-                  style={{ width: `${progress}%` }}
+              {/* ADD TASK */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-xl"
+              >
+                <input
+                  placeholder="Task title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
                 />
+
+                <input
+                  placeholder="Subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
+                />
+
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
+                />
+
+                <button
+                  onClick={addTask}
+                  className="w-full bg-gradient-to-r from-indigo-400 to-pink-500 py-2 rounded-xl font-semibold"
+                >
+                  ➕ Add Task
+                </button>
+              </motion.div>
+
+              {/* TASKS */}
+              <div className="space-y-4">
+                {tasks.map((task) => (
+                  <motion.div
+                    key={task._id}
+                    whileHover={{ scale: 1.02 }}
+                    className={`p-4 rounded-xl shadow flex justify-between ${
+                      task.completed
+                        ? "bg-green-500/20"
+                        : "bg-white/10 backdrop-blur-xl"
+                    }`}
+                  >
+                    <div>
+                      <p className="font-bold">{task.title}</p>
+                      <p className="text-sm text-gray-200">
+                        {task.subject} —{" "}
+                        {new Date(task.date).toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => toggleComplete(task._id)}
+                        className="bg-green-500 px-3 py-1 rounded"
+                      >
+                        ✓
+                      </button>
+
+                      <button
+                        onClick={() => deleteTask(task._id)}
+                        className="bg-red-500 px-3 py-1 rounded"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
 
-            {/* STREAK */}
-            <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
-              🔥 Streak: {streak}
-            </div>
+            {/* RIGHT PANEL */}
+            <div className="space-y-6">
 
-            {/* CHART */}
-            <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+              <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
+                <Calendar
+                  onChange={(value) => {
+                    if (value instanceof Date) setSelectedDate(value);
+                    else if (Array.isArray(value)) setSelectedDate(value[0]);
+                  }}
+                  value={selectedDate}
+                />
+              </div>
 
+              <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
+                <p>Progress: {progress}%</p>
+                <div className="w-full bg-gray-300 h-3 rounded mt-2">
+                  <div
+                    className="bg-green-400 h-3 rounded"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
+                🔥 Streak: {streak}
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
   );
-};
+}

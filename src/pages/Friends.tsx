@@ -119,47 +119,73 @@ export default function Friends() {
         </div>
       )}
 
-      {/* ================= FRIEND CARDS ================= */}
-      <div className="grid md:grid-cols-3 gap-6 mt-8">
-        {friends.map((f, index) => {
-          const friend = f.friend;
+ {/* ================= PREMIUM FRIEND CARDS ================= */}
+<div className="grid md:grid-cols-3 gap-8 mt-8">
+  {friends.map((f, index) => {
+    const friend = f.friend;
 
-          return (
-            <div
-              key={index}
-              className="bg-white shadow-lg rounded-xl p-4 hover:scale-105 transition"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${friend.name}`}
-                  className="w-12 h-12 rounded-full"
-                />
+    return (
+      <div
+        key={index}
+        className="bg-white rounded-2xl shadow-lg overflow-hidden hover:scale-105 transition duration-300"
+      >
+        {/* 🔷 Gradient Header */}
+        <div className="h-24 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500"></div>
 
-                <div>
-                  <h3 className="font-semibold">{friend.name}</h3>
-                  <p className="text-sm text-gray-500">
-                    {friend.email}
-                  </p>
-                </div>
-              </div>
+        {/* 👤 Avatar */}
+        <div className="flex justify-center -mt-10">
+          <img
+            src={`https://api.dicebear.com/7.x/initials/svg?seed=${friend.name}`}
+            className="w-20 h-20 rounded-full border-4 border-white shadow"
+          />
+        </div>
 
-              <div className="flex justify-between mt-4 text-sm">
-                <span>🔥 {Math.floor(Math.random() * 10) + 1} days</span>
+        {/* 📄 Info */}
+        <div className="text-center mt-2 px-4 pb-4">
+          <h3 className="text-lg font-semibold">{friend.name}</h3>
+          <p className="text-gray-500 text-sm">{friend.email}</p>
 
-                <span
-                  className={
-                    index % 2 === 0
-                      ? "text-green-500"
-                      : "text-gray-400"
-                  }
-                >
-                  ● {index % 2 === 0 ? "Studying" : "Offline"}
-                </span>
-              </div>
+          {/* 📊 Stats */}
+          <div className="flex justify-around mt-4 text-sm">
+            <div>
+              <p className="font-bold text-indigo-600">
+                {f.studyHours || Math.floor(Math.random() * 10) + 1}h
+              </p>
+              <p className="text-gray-400 text-xs">Study</p>
             </div>
-          );
-        })}
+
+            <div>
+              <p className="font-bold text-orange-500">
+                🔥 {f.streak || Math.floor(Math.random() * 7) + 1}
+              </p>
+              <p className="text-gray-400 text-xs">Streak</p>
+            </div>
+
+            <div>
+              <p
+                className={`font-bold ${
+                  f.status === "online"
+                    ? "text-green-500"
+                    : "text-gray-400"
+                }`}
+              >
+                ●
+              </p>
+              <p className="text-gray-400 text-xs">
+                {f.status || "offline"}
+              </p>
+            </div>
+          </div>
+
+          {/* 🔘 Button */}
+          <button className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+            Connect
+          </button>
+        </div>
       </div>
+    );
+  })}
+</div>
 
       {/* ================= LEADERBOARD ================= */}
       {friends.length > 0 && (

@@ -8,7 +8,6 @@ export default function Friends() {
 
   const token = localStorage.getItem("token");
 
-  /* ================= FETCH FRIENDS ================= */
   const fetchFriends = async () => {
     try {
       const res = await fetch(
@@ -25,7 +24,6 @@ export default function Friends() {
     }
   };
 
-  /* ================= ADD FRIEND ================= */
   const addFriend = async () => {
     if (!email) return;
 
@@ -59,14 +57,14 @@ export default function Friends() {
     fetchFriends();
   }, []);
 
-  /* ================= DERIVED STATS ================= */
   const totalFriends = friends.length;
   const activeFriends = Math.floor(friends.length / 2);
   const avgStudy = "3.5h";
 
   return (
-    <div className="p-10 bg-gray-50 min-h-screen">
-      {/* ================= HEADER ================= */}
+    <div className="p-10 min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      
+      {/* HEADER */}
       <h1 className="text-3xl font-bold flex items-center gap-2">
         👥 Study Circle
       </h1>
@@ -74,46 +72,45 @@ export default function Friends() {
         Learn together. Stay consistent. Grow faster 🚀
       </p>
 
-      {/* ================= STATS ================= */}
+      {/* STATS */}
       <div className="grid grid-cols-3 gap-4 mt-6">
-        <div className="bg-white shadow rounded-xl p-4 text-center">
-          <p className="text-gray-500 text-sm">Total Friends</p>
-          <h2 className="text-xl font-bold">{totalFriends}</h2>
-        </div>
-
-        <div className="bg-white shadow rounded-xl p-4 text-center">
-          <p className="text-gray-500 text-sm">Active Now</p>
-          <h2 className="text-xl font-bold text-green-500">
-            {activeFriends}
-          </h2>
-        </div>
-
-        <div className="bg-white shadow rounded-xl p-4 text-center">
-          <p className="text-gray-500 text-sm">Avg Study</p>
-          <h2 className="text-xl font-bold">{avgStudy}</h2>
-        </div>
+        {[
+          { label: "Total Friends", value: totalFriends },
+          { label: "Active Now", value: activeFriends, color: "text-green-500" },
+          { label: "Avg Study", value: avgStudy },
+        ].map((stat, i) => (
+          <div
+            key={i}
+            className="bg-white/70 backdrop-blur-lg shadow-md rounded-xl p-4 text-center hover:shadow-lg transition"
+          >
+            <p className="text-gray-500 text-sm">{stat.label}</p>
+            <h2 className={`text-xl font-bold ${stat.color || ""}`}>
+              {stat.value}
+            </h2>
+          </div>
+        ))}
       </div>
 
-      {/* ================= ADD FRIEND ================= */}
+      {/* ADD FRIEND */}
       <div className="flex gap-3 mt-6">
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter friend's email..."
-          className="border px-4 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="border px-4 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80"
         />
 
         <button
           onClick={addFriend}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:scale-105 transition"
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:scale-105 hover:bg-blue-700 transition"
         >
           Add
         </button>
       </div>
 
-      {/* ================= EMPTY STATE ================= */}
+      {/* EMPTY STATE */}
       {friends.length === 0 && (
-        <div className="text-center mt-12">
+        <div className="mt-12 bg-white/70 backdrop-blur-lg p-8 rounded-2xl shadow-md text-center max-w-xl mx-auto">
           <p className="text-lg font-semibold text-gray-700">
             😲 No study partners yet
           </p>
@@ -122,11 +119,10 @@ export default function Friends() {
             Add your first friend to start learning together!
           </p>
 
-          {/* 🔥 IMAGE */}
           <motion.img
-           src="/images/no-friends.webp"
+            src="/images/no-friends.webp"
             alt="No friends"
-            className="w-full max-w-md mx-auto mt-6"
+            className="w-full max-w-md mx-auto mt-6 rounded-xl shadow-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -134,7 +130,7 @@ export default function Friends() {
         </div>
       )}
 
-      {/* ================= FRIEND CARDS ================= */}
+      {/* FRIEND CARDS */}
       {friends.length > 0 && (
         <div className="grid md:grid-cols-3 gap-8 mt-8">
           {friends.map((f, index) => {
@@ -143,7 +139,7 @@ export default function Friends() {
             return (
               <div
                 key={index}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:scale-105 transition duration-300"
+                className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden hover:scale-105 hover:shadow-xl transition duration-300"
               >
                 <div className="h-24 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500"></div>
 
@@ -199,14 +195,14 @@ export default function Friends() {
         </div>
       )}
 
-      {/* ================= LEADERBOARD ================= */}
+      {/* LEADERBOARD */}
       {friends.length > 0 && (
         <div className="mt-10">
           <h2 className="text-xl font-bold mb-3">
             🏆 Top Study Partners
           </h2>
 
-          <div className="bg-white shadow rounded-xl p-4">
+          <div className="bg-white/80 backdrop-blur-lg shadow rounded-xl p-4">
             {[...friends]
               .sort(() => 0.5 - Math.random())
               .slice(0, 3)

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function StudyRooms() {
   const [rooms, setRooms] = useState<any[]>([]);
@@ -57,61 +58,99 @@ export default function StudyRooms() {
   };
 
   return (
-    <div className="p-10 flex gap-10">
-      {/* Room List */}
-      <div className="w-1/4">
-        <h2 className="text-xl font-bold mb-4">📚 Rooms</h2>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex">
+      
+      {/* Sidebar */}
+      <div className="w-64 p-4 border-r border-white/10">
+        <h2 className="text-lg font-semibold mb-4">📚 Rooms</h2>
+
         {rooms.map((room) => (
           <div
             key={room._id}
             onClick={() => setSelectedRoom(room)}
-            className="p-3 border rounded mb-2 cursor-pointer hover:bg-gray-100"
+            className={`p-3 rounded-xl mb-2 cursor-pointer transition flex items-center gap-2
+              ${
+                selectedRoom?._id === room._id
+                  ? "bg-blue-500/30 shadow-lg"
+                  : "hover:bg-white/10"
+              }`}
           >
-            {room.name}
+            📘 {room.name}
           </div>
         ))}
       </div>
 
       {/* Chat Section */}
       {selectedRoom && (
-        <div className="flex-1 bg-white rounded-xl shadow p-6 flex flex-col">
-          <h2 className="font-bold mb-4">
-            {selectedRoom.name}
-          </h2>
+        <div className="flex-1 flex flex-col">
+          
+          {/* Header */}
+          <div className="p-4 border-b border-white/10 flex justify-between items-center">
+            <h2 className="font-semibold text-lg">
+              {selectedRoom.name}
+            </h2>
+            <span className="text-green-400 text-sm">
+              ● Active
+            </span>
+          </div>
 
-          <div className="flex-1 overflow-y-auto space-y-2 mb-4">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className="p-2 bg-gray-100 rounded"
-              >
-                <span className="font-semibold">
-                  {msg.user.name}:{" "}
-                </span>
-                {msg.content}
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                <p className="text-lg">📚 Welcome to {selectedRoom.name}</p>
+                <p className="text-sm">Start discussion or share notes</p>
               </div>
-            ))}
+            ) : (
+              messages.map((msg, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-3 items-start"
+                >
+                  {/* Avatar */}
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-sm">
+                    {msg.user?.name?.[0] || "U"}
+                  </div>
+
+                  {/* Message bubble */}
+                  <div className="bg-white/10 backdrop-blur-md p-3 rounded-xl max-w-md">
+                    <p className="text-sm font-semibold text-blue-300">
+                      {msg.user.name}
+                    </p>
+                    <p className="text-gray-300 text-sm">
+                      {msg.content}
+                    </p>
+                  </div>
+                </motion.div>
+              ))
+            )}
           </div>
 
-          <div className="flex gap-2">
-            <input
-              value={newMessage}
-              onChange={(e) =>
-                setNewMessage(e.target.value)
-              }
-              className="border flex-1 px-3 py-2 rounded"
-              placeholder="Type message..."
-            />
-            <button
-              onClick={sendMessage}
-              className="bg-blue-600 text-white px-4 rounded"
-            >
-              Send
-            </button>
+          {/* Input */}
+          <div className="p-4 border-t border-white/10">
+            <div className="flex items-center bg-white/10 rounded-xl px-3 py-2">
+              
+              <input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                className="flex-1 bg-transparent outline-none text-sm px-2 text-white"
+                placeholder="Type message..."
+              />
+
+              <button
+                onClick={sendMessage}
+                className="bg-blue-500 hover:bg-blue-600 px-4 py-1 rounded-lg text-sm transition"
+              >
+                Send
+              </button>
+
+            </div>
           </div>
+
         </div>
       )}
     </div>
   );
 }
-

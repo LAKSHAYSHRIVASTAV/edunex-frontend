@@ -15,7 +15,6 @@ export default function FlashcardsPage() {
   const [current, setCurrent] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [cardStatus, setCardStatus] = useState<{ [key: number]: string }>({});
 
   /* ================= GENERATE ================= */
@@ -75,7 +74,7 @@ export default function FlashcardsPage() {
     }
   };
 
-  /* ================= SAVE PROGRESS ================= */
+  /* ================= SAVE ================= */
   const saveProgress = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -100,7 +99,6 @@ export default function FlashcardsPage() {
       );
 
       const data = await res.json();
-
       alert(`📊 Performance: ${data.weakness}`);
     } catch (err) {
       console.error("Save error", err);
@@ -108,19 +106,21 @@ export default function FlashcardsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black text-white p-6 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-emerald-50 to-yellow-100 flex items-center justify-center p-6">
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-3xl bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8"
+        className="w-full max-w-3xl bg-white/60 backdrop-blur-xl border border-gray-200 rounded-3xl shadow-xl p-8"
       >
 
         {/* HEADER */}
         <div className="text-center mb-6">
           <div className="text-5xl mb-2">🧠✨</div>
-          <h1 className="text-3xl font-bold">AI Flashcard Generator</h1>
-          <p className="text-gray-400 mt-2 text-sm">
+          <h1 className="text-3xl font-bold text-gray-800">
+            AI Flashcard Generator
+          </h1>
+          <p className="text-gray-500 mt-2 text-sm">
             Turn your notes into smart flashcards instantly
           </p>
         </div>
@@ -133,31 +133,30 @@ export default function FlashcardsPage() {
               placeholder="Paste your notes..."
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="w-full p-4 rounded-2xl bg-white/10 border border-white/20 focus:border-green-400 focus:ring-2 focus:ring-green-400 outline-none"
+              className="w-full p-4 rounded-2xl bg-white/80 border border-gray-300 focus:border-green-400 focus:ring-2 focus:ring-green-300 outline-none transition"
             />
 
             {/* BUTTON */}
             <button
               onClick={generateFlashcards}
-              className="mt-6 w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-semibold hover:scale-105 transition"
+              className="mt-6 w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold hover:scale-105 hover:shadow-lg transition"
             >
               {loading ? "🤖 Generating..." : "🚀 Generate Flashcards"}
             </button>
           </>
         ) : (
           <>
-            {/* PROGRESS BAR */}
-            <div className="w-full bg-white/10 h-2 rounded-full mb-4">
+            {/* PROGRESS */}
+            <div className="w-full bg-gray-200 h-2 rounded-full mb-4">
               <div
-                className="h-2 bg-green-400 rounded-full transition-all"
+                className="h-2 bg-green-500 rounded-full transition-all"
                 style={{
                   width: `${((current + 1) / flashcards.length) * 100}%`,
                 }}
               />
             </div>
 
-            {/* COUNTER */}
-            <h2 className="text-center text-gray-300 mb-4">
+            <h2 className="text-center text-gray-600 mb-4">
               Card {current + 1} / {flashcards.length}
             </h2>
 
@@ -176,7 +175,7 @@ export default function FlashcardsPage() {
 
                 {/* FRONT */}
                 <div
-                  className="absolute inset-0 flex items-center justify-center text-center p-10 rounded-3xl bg-gradient-to-br from-indigo-600 to-purple-700 text-xl font-semibold"
+                  className="absolute inset-0 flex items-center justify-center text-center p-10 rounded-3xl bg-gradient-to-br from-indigo-400 to-purple-500 text-white text-xl font-semibold shadow-lg"
                   style={{ backfaceVisibility: "hidden" }}
                 >
                   {cardStatus[current] && (
@@ -184,13 +183,12 @@ export default function FlashcardsPage() {
                       {cardStatus[current] === "easy" ? "✅ Easy" : "🔥 Hard"}
                     </div>
                   )}
-
                   {flashcards[current].question}
                 </div>
 
                 {/* BACK */}
                 <div
-                  className="absolute inset-0 flex items-center justify-center text-center p-10 rounded-3xl bg-gradient-to-br from-green-500 to-emerald-600 text-xl font-semibold"
+                  className="absolute inset-0 flex items-center justify-center text-center p-10 rounded-3xl bg-gradient-to-br from-green-400 to-emerald-500 text-white text-xl font-semibold shadow-lg"
                   style={{
                     backfaceVisibility: "hidden",
                     transform: "rotateY(180deg)",
@@ -201,24 +199,24 @@ export default function FlashcardsPage() {
               </motion.div>
             </div>
 
-            {/* EASY HARD */}
+            {/* ACTIONS */}
             <div className="flex justify-center gap-4 mt-6">
               <button
                 onClick={() => handleAnswer("easy")}
-                className="px-5 py-2 bg-green-500 rounded-xl"
+                className="px-5 py-2 bg-green-500 text-white rounded-xl hover:scale-105 transition"
               >
                 😊 Easy
               </button>
 
               <button
                 onClick={() => handleAnswer("hard")}
-                className="px-5 py-2 bg-red-500 rounded-xl"
+                className="px-5 py-2 bg-red-500 text-white rounded-xl hover:scale-105 transition"
               >
                 😓 Hard
               </button>
             </div>
 
-            {/* NEXT */}
+            {/* NAV */}
             <div className="flex justify-between mt-6">
               <button
                 disabled={current === 0}
@@ -226,7 +224,7 @@ export default function FlashcardsPage() {
                   setCurrent(current - 1);
                   setFlipped(false);
                 }}
-                className="px-5 py-2 bg-white/10 rounded-lg"
+                className="px-5 py-2 bg-gray-200 rounded-lg"
               >
                 ⬅ Prev
               </button>
@@ -234,13 +232,13 @@ export default function FlashcardsPage() {
               <button
                 onClick={() => {
                   if (current === flashcards.length - 1) {
-                    saveProgress(); // 🔥 AUTO SAVE
+                    saveProgress();
                   } else {
                     setCurrent(current + 1);
                     setFlipped(false);
                   }
                 }}
-                className="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg"
+                className="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:scale-105 transition"
               >
                 Next ➡
               </button>
@@ -252,7 +250,7 @@ export default function FlashcardsPage() {
                 setFlashcards([]);
                 setText("");
               }}
-              className="mt-6 w-full py-2 bg-red-500 rounded-lg"
+              className="mt-6 w-full py-2 bg-red-500 text-white rounded-lg hover:scale-105 transition"
             >
               🔄 Generate New
             </button>
@@ -262,7 +260,7 @@ export default function FlashcardsPage() {
         {/* BACK */}
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-8 w-full py-2 bg-gray-700 rounded-lg"
+          className="mt-8 w-full py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
         >
           ← Back
         </button>

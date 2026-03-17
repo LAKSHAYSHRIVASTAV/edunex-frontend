@@ -32,9 +32,7 @@ export default function AITutor() {
   /* ================= LOAD SAVED CHAT ID ================= */
   useEffect(() => {
     const savedChatId = localStorage.getItem("chatId");
-    if (savedChatId) {
-      setChatId(savedChatId);
-    }
+    if (savedChatId) setChatId(savedChatId);
   }, []);
 
   /* ================= CREATE CHAT ================= */
@@ -230,17 +228,36 @@ export default function AITutor() {
       >
 
         {/* HEADER */}
-        <div className="p-5 border-b flex justify-between">
+        <div className="p-5 border-b flex justify-between items-center">
           <h1 className="text-2xl font-bold">🤖 AI Tutor</h1>
 
-          <div className="flex gap-4 text-sm bg-white/70 px-4 py-2 rounded-xl shadow">
-            ⭐ {progress.level} | ⚡ {progress.xp} | 🔥 {progress.streak}
+          {/* NEW PROGRESS UI */}
+          <div className="flex items-center gap-3 bg-white/70 backdrop-blur-xl px-4 py-2 rounded-full shadow border hover:shadow-lg transition">
+
+            <div className="flex items-center gap-1 text-sm font-medium">
+              <span className="text-yellow-500">⭐</span>
+              Level {progress.level}
+            </div>
+
+            <div className="h-4 w-[1px] bg-gray-300"></div>
+
+            <div className="flex items-center gap-1 text-sm font-medium">
+              <span className="text-blue-500">⚡</span>
+              {progress.xp} XP
+            </div>
+
+            <div className="h-4 w-[1px] bg-gray-300"></div>
+
+            <div className="flex items-center gap-1 text-sm font-medium">
+              <span className="text-orange-500">🔥</span>
+              {progress.streak}
+            </div>
+
           </div>
         </div>
 
         {/* CHAT */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
-
           {messages.length === 0 && (
             <div className="text-center mt-20 space-y-3">
               <p className="text-gray-400">💡 Ask anything...</p>
@@ -281,13 +298,11 @@ export default function AITutor() {
           ))}
 
           {loading && <div className="text-gray-400">🤖 Thinking...</div>}
-
           <div ref={messagesEndRef} />
         </div>
 
         {/* INPUT */}
         <div className="p-4 flex gap-3 border-t">
-
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}

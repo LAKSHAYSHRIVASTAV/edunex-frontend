@@ -126,23 +126,11 @@ export default function Friends() {
           <motion.img
            src="/images/no-friends.webp"
             alt="No friends"
-            className="w-72 mx-auto mt-6"
+            className="w-full max-w-md mx-auto mt-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           />
-
-          {/* 🚀 CTA */}
-          <button
-            onClick={() =>
-              document.querySelector("input")?.scrollIntoView({
-                behavior: "smooth",
-              })
-            }
-            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Add Friend 🚀
-          </button>
         </div>
       )}
 

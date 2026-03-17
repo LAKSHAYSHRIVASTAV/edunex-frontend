@@ -16,7 +16,6 @@ export default function Friends() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       const data = await res.json();
       setFriends(data);
     } catch (err) {
@@ -62,8 +61,8 @@ export default function Friends() {
   const avgStudy = "3.5h";
 
   return (
-    <div className="p-10 min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      
+    <div className="p-10 min-h-screen bg-gradient-to-br from-[#fdf6ec] via-[#f8efe5] to-[#f3e7da]">
+
       {/* HEADER */}
       <h1 className="text-3xl font-bold flex items-center gap-2">
         👥 Study Circle
@@ -81,7 +80,7 @@ export default function Friends() {
         ].map((stat, i) => (
           <div
             key={i}
-            className="bg-white/70 backdrop-blur-lg shadow-md rounded-xl p-4 text-center hover:shadow-lg transition"
+            className="bg-[#fffaf5] backdrop-blur-lg shadow-md rounded-xl p-4 text-center hover:shadow-lg transition"
           >
             <p className="text-gray-500 text-sm">{stat.label}</p>
             <h2 className={`text-xl font-bold ${stat.color || ""}`}>
@@ -110,7 +109,7 @@ export default function Friends() {
 
       {/* EMPTY STATE */}
       {friends.length === 0 && (
-        <div className="mt-12 bg-white/70 backdrop-blur-lg p-8 rounded-2xl shadow-md text-center max-w-xl mx-auto">
+        <div className="mt-12 bg-[#fffaf5] backdrop-blur-lg p-8 rounded-2xl shadow-md text-center max-w-xl mx-auto">
           <p className="text-lg font-semibold text-gray-700">
             😲 No study partners yet
           </p>
@@ -139,7 +138,7 @@ export default function Friends() {
             return (
               <div
                 key={index}
-                className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden hover:scale-105 hover:shadow-xl transition duration-300"
+                className="bg-[#fffaf5] backdrop-blur-lg rounded-2xl shadow-lg overflow-hidden hover:scale-105 hover:shadow-xl transition duration-300"
               >
                 <div className="h-24 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500"></div>
 
@@ -202,7 +201,7 @@ export default function Friends() {
             🏆 Top Study Partners
           </h2>
 
-          <div className="bg-white/80 backdrop-blur-lg shadow rounded-xl p-4">
+          <div className="bg-[#fffaf5] backdrop-blur-lg shadow rounded-xl p-4">
             {[...friends]
               .sort(() => 0.5 - Math.random())
               .slice(0, 3)
@@ -223,3 +222,4 @@ export default function Friends() {
     </div>
   );
 }
+  

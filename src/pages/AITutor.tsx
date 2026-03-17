@@ -65,61 +65,87 @@ export default function AITutor() {
     setLoading(false);
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+ return (
+  <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-6">
 
-        <h1 className="text-3xl font-bold mb-6">🤖 AI Tutor</h1>
+    <div className="w-full max-w-3xl bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl flex flex-col h-[80vh]">
 
-        {/* Chat Messages */}
-        <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-          {messages.map((msg, index) => (
+      {/* HEADER */}
+      <div className="p-5 border-b flex items-center justify-between">
+        <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-800">
+          🤖 AI Tutor
+        </h1>
+
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="text-sm px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-black transition"
+        >
+          ← Dashboard
+        </button>
+      </div>
+
+      {/* CHAT AREA */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-4">
+
+        {messages.length === 0 && (
+          <p className="text-gray-400 text-center mt-20">
+            💡 Ask anything... your AI tutor will help you
+          </p>
+        )}
+
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`flex ${
+              msg.role === "user" ? "justify-end" : "justify-start"
+            }`}
+          >
             <div
-              key={index}
-              className={`p-4 rounded-xl ${
+              className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl shadow ${
                 msg.role === "user"
-                  ? "bg-orange-100 text-right"
-                  : "bg-gray-100 text-left"
+                  ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white"
+                  : "bg-white border text-gray-800"
               }`}
             >
               {msg.content}
             </div>
-          ))}
+          </div>
+        ))}
 
-          {loading && (
-            <div className="p-4 bg-gray-100 rounded-xl">
-              AI is thinking...
+        {loading && (
+          <div className="flex justify-start">
+            <div className="px-4 py-3 rounded-2xl bg-gray-200 text-gray-600 animate-pulse">
+              🤖 AI is thinking...
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
-        {/* Input */}
+      {/* INPUT AREA */}
+      <div className="p-4 border-t flex gap-3">
+
         <textarea
-          rows={3}
+          rows={1}
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          className="w-full p-4 border rounded-lg"
-          placeholder="Ask your study question..."
+          placeholder="💬 Ask your study question..."
+          className="flex-1 p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-400 outline-none resize-none"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              askTutor();
+            }
+          }}
         />
 
         <button
           onClick={askTutor}
-          className="mt-4 px-6 py-2 bg-orange-600 text-white rounded-lg"
+          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition"
         >
-          Ask Tutor
+          🚀
         </button>
-
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mt-8 px-6 py-2 bg-gray-600 text-white rounded-lg"
-        >
-          Back to Dashboard
-        </button>
-
       </div>
     </div>
-  );
-}
-
-
-
+  </div>
+);
+};

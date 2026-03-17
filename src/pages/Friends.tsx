@@ -124,7 +124,7 @@ export default function Friends() {
 
           {/* 🔥 IMAGE */}
           <motion.img
-            src="/images/no-friends.png"
+           src="/images/no-friends.webp"
             alt="No friends"
             className="w-72 mx-auto mt-6"
             initial={{ opacity: 0, y: 20 }}

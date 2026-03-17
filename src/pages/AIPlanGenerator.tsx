@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 interface DayPlan {
   day: string;
@@ -12,7 +13,6 @@ interface WeekPlan {
 }
 
 export default function AIPlanGenerator() {
-
   const [subject, setSubject] = useState("");
   const [topics, setTopics] = useState("");
   const [examDate, setExamDate] = useState("");
@@ -25,76 +25,50 @@ export default function AIPlanGenerator() {
   const BASE_URL =
     "https://edunex-backend-rj22.onrender.com/api/ai/generate-plan";
 
-  // --------------------------------
-  // GENERATE STUDY PLAN
-  // --------------------------------
-
   const generatePlan = async () => {
-
     if (!subject || !topics || !examDate || !hoursPerDay) {
       alert("Please fill all fields properly");
       return;
     }
 
     try {
-
       setLoading(true);
 
       const response = await fetch(BASE_URL, {
-
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-
         body: JSON.stringify({
           subject,
           topics,
           examDate,
           hoursPerDay: Number(hoursPerDay),
         }),
-
       });
 
       const data = await response.json();
-
-      console.log("AI Study Plan Response:", data);
-
       setPlan(data.generatedPlan.weeks);
 
     } catch (error) {
-
       console.error("AI Plan Error:", error);
       alert("Failed to generate AI plan");
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
-  // --------------------------------
-  // RL PROGRESS FEEDBACK
-  // --------------------------------
-
   const markProgress = async (topic: string, difficulty: string) => {
-
     try {
-
       await fetch(
         "https://edunex-backend-rj22.onrender.com/api/progress",
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-
           body: JSON.stringify({
             topic,
             difficulty,
@@ -104,144 +78,122 @@ export default function AIPlanGenerator() {
       );
 
       alert("Progress saved!");
-
     } catch (error) {
-
       console.error("Progress save failed");
-
     }
-
   };
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-6 text-white">
 
-    <div className="p-10 space-y-8">
-
-      <h1 className="text-3xl font-bold">
+      {/* HEADER */}
+      <h1 className="text-4xl font-bold mb-8">
         🤖 AI Smart Study Plan Generator
       </h1>
 
-      {/* INPUT FORM */}
-
-      <div className="bg-white p-6 rounded-xl shadow space-y-4">
-
+      {/* INPUT CARD */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-xl space-y-4 mb-8"
+      >
         <input
-          placeholder="Subject (e.g Physics)"
+          placeholder="📘 Subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 rounded-xl bg-white/20 text-white placeholder-gray-200 outline-none"
         />
 
         <input
-          placeholder="Topics (comma separated)"
+          placeholder="📖 Topics (comma separated)"
           value={topics}
           onChange={(e) => setTopics(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 rounded-xl bg-white/20 text-white placeholder-gray-200 outline-none"
         />
 
         <input
           type="date"
           value={examDate}
           onChange={(e) => setExamDate(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 rounded-xl bg-white/20 text-white outline-none"
         />
 
         <input
           type="number"
           min="1"
           max="12"
-          placeholder="Study hours per day"
+          placeholder="⏱ Hours per day"
           value={hoursPerDay}
           onChange={(e) =>
             setHoursPerDay(
               e.target.value === "" ? "" : Number(e.target.value)
             )
           }
-          className="w-full p-2 border rounded"
+          className="w-full p-3 rounded-xl bg-white/20 text-white placeholder-gray-200 outline-none"
         />
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={generatePlan}
-          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+          className="w-full bg-gradient-to-r from-indigo-400 to-pink-500 py-3 rounded-xl font-semibold shadow-lg"
         >
-          {loading ? "Generating..." : "Generate AI Plan"}
-        </button>
+          {loading ? "⏳ Generating..." : "🚀 Generate AI Plan"}
+        </motion.button>
+      </motion.div>
 
-      </div>
-
-      {/* GENERATED PLAN */}
-
+      {/* PLAN */}
       {plan.length > 0 && (
-
         <div className="space-y-6">
 
           {plan.map((week, index) => (
-
             <div
               key={index}
-              className="bg-white p-6 rounded-xl shadow"
+              className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-xl"
             >
-
               <h2 className="text-xl font-semibold mb-4">
-                {week.week}
+                📅 {week.week}
               </h2>
 
               {week.days.map((day, i) => (
-
                 <div
                   key={i}
-                  className="p-4 border rounded mb-3 bg-gray-50"
+                  className="p-4 mb-3 rounded-xl bg-white/20"
                 >
+                  <p className="font-semibold">{day.day}</p>
 
-                  <p className="font-semibold">
-                    {day.day}
+                  <p className="text-sm text-gray-200">
+                    📚 {day.focus}
                   </p>
 
-                  <p className="text-sm text-gray-600">
-                    Focus: {day.focus}
+                  <p className="text-sm text-gray-200">
+                    ⏱ {day.hours} hrs
                   </p>
-
-                  <p className="text-sm text-gray-600">
-                    Study Hours: {day.hours}
-                  </p>
-
-                  {/* RL FEEDBACK BUTTONS */}
 
                   <div className="flex gap-3 mt-3">
 
                     <button
-                      onClick={() =>
-                        markProgress(day.focus, "easy")
-                      }
-                      className="bg-green-500 text-white px-3 py-1 rounded"
+                      onClick={() => markProgress(day.focus, "easy")}
+                      className="bg-green-500 px-3 py-1 rounded hover:scale-105 transition"
                     >
-                      ✔ Completed
+                      ✔ Done
                     </button>
 
                     <button
-                      onClick={() =>
-                        markProgress(day.focus, "hard")
-                      }
-                      className="bg-red-500 text-white px-3 py-1 rounded"
+                      onClick={() => markProgress(day.focus, "hard")}
+                      className="bg-red-500 px-3 py-1 rounded hover:scale-105 transition"
                     >
-                      ❗ Difficult
+                      ❗ Hard
                     </button>
 
                   </div>
-
                 </div>
-
               ))}
-
             </div>
-
           ))}
 
         </div>
-
       )}
-
     </div>
-
   );
 }

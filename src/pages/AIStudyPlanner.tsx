@@ -96,7 +96,6 @@ export default function AIStudyPlanner() {
     fetchTasks();
   };
 
-  // PROGRESS
   const progress =
     tasks.length === 0
       ? 0
@@ -104,100 +103,106 @@ export default function AIStudyPlanner() {
           (tasks.filter((t) => t.completed).length / tasks.length) * 100
         );
 
-  // STREAK CALCULATION
   const streak = tasks.filter((t) => t.completed).length;
 
-  // CHART DATA
   const chartData = [
     { name: "Completed", value: tasks.filter((t) => t.completed).length },
     { name: "Pending", value: tasks.filter((t) => !t.completed).length },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-6">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#4f46e5,_#7c3aed,_#ec4899)] p-6 text-white">
 
       {showConfetti && <Confetti />}
 
       {/* BACK */}
       <button
         onClick={() => navigate("/dashboard")}
-        className="mb-6 px-5 py-2 bg-white rounded-xl shadow hover:scale-105 transition"
+        className="mb-6 px-5 py-2 bg-white/20 backdrop-blur-lg rounded-xl hover:scale-105 transition"
       >
         ← Dashboard
       </button>
 
       {/* HEADER */}
-      <h1 className="text-4xl font-bold mb-6">🚀 AI Study Planner</h1>
+      <h1 className="text-4xl font-bold mb-6">
+        🚀 AI Study Planner
+      </h1>
 
-      {/* GRID */}
       <div className="grid md:grid-cols-3 gap-6">
 
         {/* LEFT */}
         <div className="md:col-span-2 space-y-6">
 
           {/* ADD TASK */}
-          <div className="bg-white p-6 rounded-2xl shadow">
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl shadow-xl"
+          >
             <input
               placeholder="Task title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-3 border rounded mb-3"
+              className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
             />
 
             <input
               placeholder="Subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full p-3 border rounded mb-3"
+              className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
             />
 
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full p-3 border rounded mb-3"
+              className="w-full p-3 rounded-xl bg-white/20 mb-3 outline-none"
             />
 
             <button
               onClick={addTask}
-              className="w-full bg-indigo-600 text-white py-2 rounded"
+              className="w-full bg-gradient-to-r from-indigo-400 to-pink-500 py-2 rounded-xl font-semibold"
             >
-              Add Task
+              ➕ Add Task
             </button>
-          </div>
+          </motion.div>
 
           {/* TASKS */}
           <div className="space-y-4">
             {tasks.map((task) => (
-              <div
+              <motion.div
                 key={task._id}
+                whileHover={{ scale: 1.02 }}
                 className={`p-4 rounded-xl shadow flex justify-between ${
-                  task.completed ? "bg-green-50" : "bg-white"
+                  task.completed
+                    ? "bg-green-500/20"
+                    : "bg-white/10 backdrop-blur-xl"
                 }`}
               >
                 <div>
                   <p className="font-bold">{task.title}</p>
-                  <p className="text-sm text-gray-500">
-                    {task.subject} — {new Date(task.date).toLocaleDateString()}
+                  <p className="text-sm text-gray-200">
+                    {task.subject} —{" "}
+                    {new Date(task.date).toLocaleDateString()}
                   </p>
                 </div>
 
                 <div className="flex gap-2">
                   <button
                     onClick={() => toggleComplete(task._id)}
-                    className="bg-green-500 text-white px-3 py-1 rounded"
+                    className="bg-green-500 px-3 py-1 rounded"
                   >
                     ✓
                   </button>
 
                   <button
                     onClick={() => deleteTask(task._id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
+                    className="bg-red-500 px-3 py-1 rounded"
                   >
                     ✕
                   </button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -205,37 +210,35 @@ export default function AIStudyPlanner() {
         {/* RIGHT PANEL */}
         <div className="space-y-6">
 
-         <Calendar
-  onChange={(value) => {
-    if (value instanceof Date) {
-      setSelectedDate(value);
-    } else if (Array.isArray(value)) {
-      setSelectedDate(value[0]); // pick first date
-    }
-  }}
-  value={selectedDate}
-/>
-
+          {/* CALENDAR */}
+          <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
+            <Calendar
+              onChange={(value) => {
+                if (value instanceof Date) setSelectedDate(value);
+                else if (Array.isArray(value)) setSelectedDate(value[0]);
+              }}
+              value={selectedDate}
+            />
           </div>
 
           {/* PROGRESS */}
-          <div className="bg-white p-4 rounded-2xl shadow">
+          <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
             <p>Progress: {progress}%</p>
-            <div className="w-full bg-gray-200 h-3 rounded mt-2">
+            <div className="w-full bg-gray-300 h-3 rounded mt-2">
               <div
-                className="bg-green-500 h-3 rounded"
+                className="bg-green-400 h-3 rounded"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
 
           {/* STREAK */}
-          <div className="bg-white p-4 rounded-2xl shadow">
-            🔥 Streak: {streak} tasks completed
+          <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl">
+            🔥 Streak: {streak}
           </div>
 
           {/* CHART */}
-          <div className="bg-white p-4 rounded-2xl shadow h-64">
+          <div className="bg-white/10 backdrop-blur-xl p-4 rounded-2xl h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <XAxis dataKey="name" />
@@ -245,10 +248,9 @@ export default function AIStudyPlanner() {
               </BarChart>
             </ResponsiveContainer>
           </div>
+
         </div>
       </div>
-    
+    </div>
   );
-
 }
-

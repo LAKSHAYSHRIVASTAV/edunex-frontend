@@ -135,7 +135,7 @@ export default function AIPlanGenerator() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={generatePlan}
-          className="w-full bg-gradient-to-r from-indigo-400 to-pink-500 py-3 rounded-xl font-semibold"
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-purple-500/50 transition"
         >
           {loading ? "⏳ Generating..." : "🚀 Generate AI Plan"}
         </motion.button>

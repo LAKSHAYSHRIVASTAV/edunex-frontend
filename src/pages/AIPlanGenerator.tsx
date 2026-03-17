@@ -100,36 +100,36 @@ export default function AIPlanGenerator() {
         animate={{ opacity: 1 }}
         className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-2xl space-y-4 mb-8"
       >
-        <input
-          placeholder="📘 Subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          className="w-full p-3 rounded-xl bg-white/20 outline-none"
-        />
+       <input
+  placeholder="📘 Subject"
+  value={subject}
+  onChange={(e) => setSubject(e.target.value)}
+  className="w-full p-3 rounded-xl bg-white/90 text-gray-800 placeholder-gray-500 outline-none shadow-sm focus:ring-2 focus:ring-pink-400"
+/>
 
-        <input
-          placeholder="📖 Topics (comma separated)"
-          value={topics}
-          onChange={(e) => setTopics(e.target.value)}
-          className="w-full p-3 rounded-xl bg-white/20 outline-none"
-        />
+<input
+  placeholder="📖 Topics (comma separated)"
+  value={topics}
+  onChange={(e) => setTopics(e.target.value)}
+  className="w-full p-3 rounded-xl bg-white/90 text-gray-800 placeholder-gray-500 outline-none shadow-sm focus:ring-2 focus:ring-pink-400"
+/>
 
-        <input
-          type="date"
-          value={examDate}
-          onChange={(e) => setExamDate(e.target.value)}
-          className="w-full p-3 rounded-xl bg-white/20 outline-none"
-        />
+<input
+  type="date"
+  value={examDate}
+  onChange={(e) => setExamDate(e.target.value)}
+  className="w-full p-3 rounded-xl bg-white/90 text-gray-800 outline-none shadow-sm focus:ring-2 focus:ring-pink-400"
+/>
 
-        <input
-          type="number"
-          placeholder="⏱ Hours per day"
-          value={hoursPerDay}
-          onChange={(e) =>
-            setHoursPerDay(e.target.value === "" ? "" : Number(e.target.value))
-          }
-          className="w-full p-3 rounded-xl bg-white/20 outline-none"
-        />
+<input
+  type="number"
+  placeholder="⏱ Hours per day"
+  value={hoursPerDay}
+  onChange={(e) =>
+    setHoursPerDay(e.target.value === "" ? "" : Number(e.target.value))
+  }
+  className="w-full p-3 rounded-xl bg-white/90 text-gray-800 placeholder-gray-500 outline-none shadow-sm focus:ring-2 focus:ring-pink-400"
+/>
 
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -182,6 +182,7 @@ export default function AIPlanGenerator() {
             </div>
           ))}
         </div>
+
       )}
     </div>
   </div>

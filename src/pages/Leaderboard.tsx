@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import CountUp from "react-countup";
 
 interface LeaderboardEntry {
   rank: number;
@@ -13,8 +15,8 @@ export default function Leaderboard() {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"global" | "friends">("global");
-  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   const fetchLeaderboard = async () => {
     const token = localStorage.getItem("token");
@@ -28,9 +30,7 @@ export default function Leaderboard() {
       const res = await fetch(
         `https://edunex-backend-rj22.onrender.com${endpoint}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -49,19 +49,29 @@ export default function Leaderboard() {
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-8">
 
-        <h1 className="text-3xl font-bold mb-6">🏆 Leaderboard</h1>
+      <div className="max-w-5xl mx-auto">
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6">
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold flex items-center gap-3 text-gray-800 dark:text-white">
+            🏆 Leaderboard
+          </h1>
+
+          <div className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 px-4 py-2 rounded-full text-sm font-medium shadow">
+            {activeTab === "global" ? "🌍 Global Ranking" : "👥 Friends Ranking"}
+          </div>
+        </div>
+
+        {/* TABS */}
+        <div className="flex gap-4 mb-8">
           <button
             onClick={() => setActiveTab("global")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-5 py-2 rounded-full font-medium transition ${
               activeTab === "global"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200"
+                ? "bg-blue-600 text-white shadow-lg"
+                : "bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-gray-300"
             }`}
           >
             🌍 Global
@@ -69,78 +79,133 @@ export default function Leaderboard() {
 
           <button
             onClick={() => setActiveTab("friends")}
-            className={`px-4 py-2 rounded-lg ${
+            className={`px-5 py-2 rounded-full font-medium transition ${
               activeTab === "friends"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200"
+                ? "bg-blue-600 text-white shadow-lg"
+                : "bg-gray-200 dark:bg-gray-700 dark:text-white hover:bg-gray-300"
             }`}
           >
             👥 Friends
           </button>
         </div>
 
+        {/* LOADING */}
         {loading ? (
-          <p>Loading leaderboard...</p>
+          <div className="text-center py-10 text-gray-500 dark:text-gray-400">
+            ⏳ Loading leaderboard...
+          </div>
         ) : leaders.length === 0 ? (
-          <p>No quiz data available yet.</p>
+          <div className="text-center py-10 text-gray-500 dark:text-gray-400">
+            No quiz data available yet.
+          </div>
         ) : (
-          <div className="space-y-4">
-            {leaders.map((user) => (
-              <div
-             key={user.rank}
-             className={`flex items-center justify-between p-4 rounded-xl shadow-sm transition transform hover:scale-[1.02] ${
-            user.name === currentUser.name
-            ? "bg-blue-100 border-2 border-blue-500"
-            : "bg-gray-50 hover:shadow-md"
-      }`}
-         >
+          <>
+            {/* 🥇 TOP 3 PODIUM */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center">
+              {leaders.slice(0, 3).map((user, i) => (
+                <div
+                  key={i}
+                  className={`relative p-6 rounded-2xl shadow-lg ${
+                    i === 0
+                      ? "bg-yellow-100 dark:bg-yellow-900 scale-105"
+                      : i === 1
+                      ? "bg-gray-100 dark:bg-gray-800"
+                      : "bg-orange-100 dark:bg-orange-900"
+                  }`}
+                >
+                  {i === 0 && (
+                    <div className="absolute inset-0 rounded-2xl bg-yellow-300/20 animate-pulse" />
+                  )}
 
-                <div className="flex items-center gap-4">
-                  <div className="text-xl font-bold w-8">
-                    {user.rank === 1
-                      ? "🥇"
-                      : user.rank === 2
-                      ? "🥈"
-                      : user.rank === 3
-                      ? "🥉"
-                      : `#${user.rank}`}
+                  <div className="text-3xl">
+                    {i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}
                   </div>
-                  <div>
-                  <p className="font-semibold text-lg flex items-center gap-2">
-                 {user.name}
-                 {user.name === currentUser.name && (
-                <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
-                 You
-                </span>
-               )}
-                 </p>
 
-                    <p className="text-sm text-gray-500">
-                      {user.totalQuizzes} quizzes completed
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-xl font-bold text-blue-600">
+                  <p className="font-bold mt-2 dark:text-white">{user.name}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
                     {user.averageScore}%
                   </p>
-                  <p className="text-xs text-gray-500">
-                    Average Score
-                  </p>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+            {/* 📊 LEADERBOARD LIST */}
+            <div className="space-y-4">
+              {leaders.map((user) => (
+                <motion.div
+                  key={user.rank}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: user.rank * 0.05 }}
+                  className={`flex items-center justify-between p-5 rounded-2xl shadow-md transition hover:scale-[1.02] hover:shadow-xl ${
+                    user.name === currentUser.name
+                      ? "bg-blue-100 dark:bg-blue-900 border-2 border-blue-500"
+                      : "bg-white dark:bg-gray-800"
+                  } ${user.rank === 1 ? "ring-2 ring-yellow-400 shadow-lg" : ""}`}
+                >
+                  {/* LEFT */}
+                  <div className="flex items-center gap-4">
+
+                    {/* RANK */}
+                    <div className="text-xl font-bold w-8">
+                      {user.rank === 1
+                        ? "🥇"
+                        : user.rank === 2
+                        ? "🥈"
+                        : user.rank === 3
+                        ? "🥉"
+                        : `#${user.rank}`}
+                    </div>
+
+                    {/* AVATAR */}
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+
+                    {/* INFO */}
+                    <div>
+                      <p className="font-semibold text-lg flex items-center gap-2 dark:text-white">
+                        {user.name}
+                        {user.name === currentUser.name && (
+                          <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded-full">
+                            You
+                          </span>
+                        )}
+                      </p>
+
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {user.totalQuizzes} quizzes • {user.averageScore * 10} XP
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* RIGHT */}
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-blue-600">
+                      <CountUp end={user.averageScore} duration={1.5} />%
+                    </p>
+
+                    {/* PROGRESS BAR */}
+                    <div className="w-32 bg-gray-200 dark:bg-gray-700 h-2 rounded-full mt-2">
+                      <div
+                        className="bg-blue-500 h-2 rounded-full"
+                        style={{ width: `${user.averageScore}%` }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </>
         )}
 
+        {/* BACK BUTTON */}
         <button
           onClick={() => navigate("/dashboard")}
-          className="mt-8 px-6 py-2 bg-blue-600 text-white rounded-lg"
+          className="mt-10 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition"
         >
-          Back to Dashboard
+          ← Back to Dashboard
         </button>
-
       </div>
     </div>
   );

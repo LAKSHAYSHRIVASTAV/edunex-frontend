@@ -85,8 +85,13 @@ export default function QuizHistory() {
   // ⏳ Loading UI
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-pink-50">
-        <p className="text-lg text-gray-600 animate-pulse">
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 via-blue-50 to-pink-100"></div>
+        <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-purple-300 opacity-30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-[-120px] right-[-120px] w-[400px] h-[400px] bg-pink-300 opacity-30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute inset-0 backdrop-blur-[80px] bg-white/30"></div>
+
+        <p className="relative z-10 text-lg text-gray-600 animate-pulse">
           Loading your performance...
         </p>
       </div>
@@ -95,19 +100,38 @@ export default function QuizHistory() {
   // ❌ Empty State
   if (!history.length)
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-pink-50">
-        <p className="text-2xl font-semibold text-gray-700 mb-2">
-          No Quiz History Yet
-        </p>
-        <p className="text-gray-500">
-          Start solving quizzes to see your progress 🚀
-        </p>
+      <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 via-blue-50 to-pink-100"></div>
+        <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-purple-300 opacity-30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-[-120px] right-[-120px] w-[400px] h-[400px] bg-pink-300 opacity-30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute inset-0 backdrop-blur-[80px] bg-white/30"></div>
+
+        <div className="relative z-10 text-center">
+          <p className="text-2xl font-semibold text-gray-700 mb-2">
+            No Quiz History Yet
+          </p>
+          <p className="text-gray-500">
+            Start solving quizzes to see your progress 🚀
+          </p>
+        </div>
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="relative min-h-screen overflow-hidden p-6">
+      {/* 🌈 Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 via-blue-50 to-pink-100"></div>
+
+      {/* 💡 Glow blobs */}
+      <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-purple-300 opacity-30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-[-120px] right-[-120px] w-[400px] h-[400px] bg-pink-300 opacity-30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute top-[30%] left-[40%] w-[300px] h-[300px] bg-blue-300 opacity-20 rounded-full blur-3xl animate-pulse"></div>
+
+      {/* 🧊 Glass overlay */}
+      <div className="absolute inset-0 backdrop-blur-[80px] bg-white/30"></div>
+
+      {/* 🔥 Content */}
+      <div className="relative z-10 max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold mb-6 text-gray-800">
           📊 Quiz History
         </h2>
@@ -151,7 +175,6 @@ export default function QuizHistory() {
                 key={quiz._id}
                 className="bg-white/70 backdrop-blur-md border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex justify-between items-center"
               >
-                {/* LEFT */}
                 <div>
                   <h3 className="font-semibold text-lg text-gray-800">
                     {quiz.subject} - {quiz.topic}
@@ -161,7 +184,6 @@ export default function QuizHistory() {
                   </p>
                 </div>
 
-                {/* RIGHT */}
                 <div className="text-right">
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-semibold ${getColor(
@@ -172,7 +194,6 @@ export default function QuizHistory() {
                     {quiz.score} / {quiz.totalQuestions}
                   </span>
 
-                  {/* Progress */}
                   <div className="w-32 h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
                     <div
                       className="h-full bg-indigo-500"

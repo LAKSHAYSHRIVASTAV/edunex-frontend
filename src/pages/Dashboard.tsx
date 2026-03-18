@@ -192,29 +192,6 @@ export default function Dashboard() {
 
         </motion.div>
 
-        {/* AI Document Intelligence */}
-        <div className="bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg">
-          <h2 className="text-xl font-bold mb-4 text-indigo-600">
-            AI Document Intelligence
-          </h2>
-
-          <input type="file" className="mb-4" />
-
-          <textarea
-            placeholder="Paste your study material here..."
-            className="w-full h-32 p-3 rounded-lg border border-gray-200 mb-4 bg-white/50 backdrop-blur-sm"
-          />
-
-          <div className="flex gap-4">
-            <button className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:scale-105 transition">
-              Generate Summary
-            </button>
-            <button className="px-4 py-2 rounded-lg bg-purple-600 text-white hover:scale-105 transition">
-              Generate Quiz
-            </button>
-          </div>
-        </div>
-
         <SummaryCard />
 
         <ActionButtons onFlashcardsClick={() => navigate("/flashcards")} />

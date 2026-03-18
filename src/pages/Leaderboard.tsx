@@ -49,9 +49,32 @@ export default function Leaderboard() {
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-8">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-8">
 
-      <div className="max-w-5xl mx-auto">
+      {/* 🌈 FLOATING BLOBS */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+
+        <motion.div
+          className="absolute w-72 h-72 bg-blue-300 opacity-30 rounded-full blur-3xl"
+          animate={{ x: [0, 100, -50, 0], y: [0, -100, 50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <motion.div
+          className="absolute w-80 h-80 bg-purple-300 opacity-30 rounded-full blur-3xl top-40 right-10"
+          animate={{ x: [0, -120, 60, 0], y: [0, 80, -60, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <motion.div
+          className="absolute w-72 h-72 bg-pink-300 opacity-30 rounded-full blur-3xl bottom-10 left-20"
+          animate={{ x: [0, 60, -80, 0], y: [0, -60, 80, 0] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+      </div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
 
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
@@ -100,7 +123,7 @@ export default function Leaderboard() {
           </div>
         ) : (
           <>
-            {/* 🥇 TOP 3 PODIUM */}
+            {/* 🥇 TOP 3 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center">
               {leaders.slice(0, 3).map((user, i) => (
                 <div
@@ -129,7 +152,7 @@ export default function Leaderboard() {
               ))}
             </div>
 
-            {/* 📊 LEADERBOARD LIST */}
+            {/* LIST */}
             <div className="space-y-4">
               {leaders.map((user) => (
                 <motion.div
@@ -140,13 +163,11 @@ export default function Leaderboard() {
                   className={`flex items-center justify-between p-5 rounded-2xl shadow-md transition hover:scale-[1.02] hover:shadow-xl ${
                     user.name === currentUser.name
                       ? "bg-blue-100 dark:bg-blue-900 border-2 border-blue-500"
-                      : "bg-white dark:bg-gray-800"
+                      : "bg-white/80 backdrop-blur-md dark:bg-gray-800"
                   } ${user.rank === 1 ? "ring-2 ring-yellow-400 shadow-lg" : ""}`}
                 >
-                  {/* LEFT */}
                   <div className="flex items-center gap-4">
 
-                    {/* RANK */}
                     <div className="text-xl font-bold w-8">
                       {user.rank === 1
                         ? "🥇"
@@ -157,12 +178,10 @@ export default function Leaderboard() {
                         : `#${user.rank}`}
                     </div>
 
-                    {/* AVATAR */}
                     <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">
                       {user.name.charAt(0).toUpperCase()}
                     </div>
 
-                    {/* INFO */}
                     <div>
                       <p className="font-semibold text-lg flex items-center gap-2 dark:text-white">
                         {user.name}
@@ -179,13 +198,11 @@ export default function Leaderboard() {
                     </div>
                   </div>
 
-                  {/* RIGHT */}
                   <div className="text-right">
                     <p className="text-xl font-bold text-blue-600">
                       <CountUp end={user.averageScore} duration={1.5} />%
                     </p>
 
-                    {/* PROGRESS BAR */}
                     <div className="w-32 bg-gray-200 dark:bg-gray-700 h-2 rounded-full mt-2">
                       <div
                         className="bg-blue-500 h-2 rounded-full"
@@ -199,7 +216,7 @@ export default function Leaderboard() {
           </>
         )}
 
-        {/* BACK BUTTON */}
+        {/* BACK */}
         <button
           onClick={() => navigate("/dashboard")}
           className="mt-10 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition"

@@ -7,6 +7,7 @@ import NotFound from "./pages/NotFound";
 
 import Dashboard from "./pages/Dashboard";
 import Quiz from "./pages/Quiz";
+import QuizHistory from "./pages/QuizHistory";
 import FlashcardsPage from "./pages/FlashcardsPage";
 import Analytics from "./pages/Analytics";
 import AITutor from "./pages/AITutor";
@@ -19,6 +20,7 @@ import AdminPage from "./pages/AdminPage";
 
 import AIPlanGenerator from "./pages/AIPlanGenerator";
 import ProtectedRoute from "./components/ProtectedRoute";
+
 
 function App() {
   return (
@@ -51,6 +53,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/quiz-history"
+  element={
+    <ProtectedRoute>
+      <QuizHistory />
+    </ProtectedRoute>
+  }
+/>
 
         <Route
           path="/flashcards"

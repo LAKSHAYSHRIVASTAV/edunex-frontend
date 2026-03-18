@@ -19,7 +19,7 @@ export default function Sidebar() {
 
   const mainMenu = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Quiz", path: "/quiz", icon: Brain },
+   { name: "Quiz History", path: "/quiz-history", icon: Brain },
     { name: "Flashcards", path: "/flashcards", icon: BookOpen },
     { name: "AI Tutor", path: "/ai-tutor", icon: MessageCircle },
     { name: "Analytics", path: "/analytics", icon: BarChart },

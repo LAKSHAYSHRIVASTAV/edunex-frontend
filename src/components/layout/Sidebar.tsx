@@ -43,21 +43,23 @@ export default function Sidebar() {
       <div
         key={index}
         onClick={() => navigate(item.path)}
-        className={`relative flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-300 group ${
+        className={`relative flex items-center gap-3 p-3 rounded-xl cursor-pointer 
+        transition-all duration-300 group hover:scale-[1.02]
+        ${
           isActive
-            ? "bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 font-semibold shadow-sm"
-            : "text-gray-600 hover:bg-gray-100"
+            ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold shadow-lg scale-[1.03]"
+            : "text-gray-600 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 dark:hover:from-gray-800 dark:hover:to-gray-800 hover:text-blue-600 dark:hover:text-white"
         }`}
       >
-        {/* Active Indicator Bar */}
+        {/* 🔥 Active Indicator */}
         {isActive && (
-          <div className="absolute left-0 top-0 h-full w-1 bg-blue-600 rounded-r-lg"></div>
+          <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 to-purple-600 rounded-r-lg"></div>
         )}
 
         <Icon
           size={18}
           className={`transition-transform duration-300 ${
-            isActive ? "scale-110" : "group-hover:scale-105"
+            isActive ? "scale-110 text-white" : "group-hover:scale-110"
           }`}
         />
 
@@ -67,18 +69,28 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-white shadow-xl fixed flex flex-col border-r border-gray-100">
-      <div className="p-6 text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    <aside
+      className="w-64 min-h-screen fixed flex flex-col
+      bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl
+      border-r border-gray-200 dark:border-gray-800 shadow-xl"
+    >
+      {/* 🔷 LOGO */}
+      <div
+        className="p-6 text-2xl font-extrabold tracking-wide
+        bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600
+        bg-clip-text text-transparent"
+      >
         EDUNEX
       </div>
 
+      {/* 🔹 MENU */}
       <nav className="mt-4 space-y-2 px-4 flex-1 overflow-y-auto">
         {mainMenu.map(renderItem)}
 
         {/* Divider */}
-        <div className="my-6 border-t border-gray-200"></div>
+        <div className="my-6 border-t border-gray-200 dark:border-gray-700"></div>
 
-        {/* Admin Section */}
+        {/* System Controls */}
         <p className="text-xs text-gray-400 uppercase tracking-wider px-2 mb-2">
           System Controls
         </p>
@@ -88,5 +100,4 @@ export default function Sidebar() {
     </aside>
   );
 }
-
 

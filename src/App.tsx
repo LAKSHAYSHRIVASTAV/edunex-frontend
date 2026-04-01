@@ -20,6 +20,8 @@ import AdminPage from "./pages/AdminPage";
 
 import AIPlanGenerator from "./pages/AIPlanGenerator";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./pages/Home";
+
 
 
 function App() {
@@ -28,7 +30,7 @@ function App() {
       <Routes>
 
         {/* ✅ Default Root Redirect */}
-        <Route path="/" element={<Navigate to="/login" />} />
+       <Route path="/" element={<Home />} />
 
         {/* 🔐 Public Routes */}
         <Route path="/login" element={<Login />} />

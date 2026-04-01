@@ -13,18 +13,28 @@ const STYLE = `
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
 
   :root {
-    --bg:        #06080f;
-    --surface:   #0d1120;
-    --surface2:  #131829;
-    --border:    rgba(255,255,255,0.07);
-    --indigo:    #5b5ef4;
-    --indigo2:   #818cf8;
-    --gold:      #e8c97a;
-    --gold2:     #f5dfa0;
-    --text:      #eef0f9;
-    --muted:     #8b90aa;
-    --danger:    #f87171;
-  }
+  /* 🌈 NEW BALANCED THEME (matches your UI) */
+
+  --bg:        #0f1226;         /* softer dark (not black) */
+  --surface:   #161a35;         /* card background */
+  --surface2:  #1c2145;         /* input / inner cards */
+
+  --border:    rgba(255,255,255,0.08);
+
+  /* 💜 Purple-Blue Gradient Feel */
+  --indigo:    #6c63ff;         /* main brand */
+  --indigo2:   #8b85ff;         /* lighter accent */
+
+  /* ✨ Gold accent (keep premium feel) */
+  --gold:      #f4d47c;
+  --gold2:     #ffe7a3;
+
+  /* 📝 Text */
+  --text:      #f5f7ff;         /* softer white */
+  --muted:     #a3a8c3;         /* readable grey */
+
+  --danger:    #ff6b6b;
+}
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

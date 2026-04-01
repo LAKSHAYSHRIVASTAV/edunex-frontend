@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// ✅ IMPORTANT: import image from assets
-import dashboardImg from "../assets/dashboard-preview.png";
+// ✅ FIXED: correct image name
+import dashboardImg from "../assets/dashboard.png";
 
 function Home() {
   const navigate = useNavigate();
@@ -133,7 +133,6 @@ function Home() {
           Track progress, insights, and learning performance.
         </p>
 
-        {/* ✅ FIXED IMAGE */}
         <img
           src={dashboardImg}
           alt="Dashboard Preview"

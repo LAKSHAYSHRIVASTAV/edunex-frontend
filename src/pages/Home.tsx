@@ -15,7 +15,7 @@ const STYLE = `
   :root {
   /* 🌈 NEW BALANCED THEME (matches your UI) */
 
-  --bg:        #0f1226;         /* softer dark (not black) */
+  --bg: linear-gradient(135deg, #bcd2f7 0%, #a5b4fc 40%, #c4b5fd 100%);
   --surface:   #161a35;         /* card background */
   --surface2:  #1c2145;         /* input / inner cards */
 
@@ -39,12 +39,10 @@ const STYLE = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+}
   /* Scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
@@ -66,6 +64,7 @@ const STYLE = `
     position: absolute;
     border-radius: 50%;
     filter: blur(120px);
+
     pointer-events: none;
     animation: pulse 8s ease-in-out infinite alternate;
   }

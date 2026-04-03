@@ -21,8 +21,8 @@ import AdminPage from "./pages/AdminPage";
 import AIPlanGenerator from "./pages/AIPlanGenerator";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
-import ReportPage from "./pages/ReportPage";
-
+import ReportPage from "./components/features/report/ReportPage";
+import ReportPreview from "./components/features/report/ReportPreview";
 
 
 function App() {
@@ -97,6 +97,15 @@ function App() {
           element={
             <ProtectedRoute>
               <ReportPage />
+            </ProtectedRoute>
+          }
+        />
+
+       <Route
+          path="/report"
+          element={
+            <ProtectedRoute>
+              <ReportPreview />
             </ProtectedRoute>
           }
         />

@@ -1,25 +1,41 @@
 import { useState, useEffect, useCallback } from "react";
 
-const API_BASE = "/api";
+const API_BASE = "https://edunex-backend-rj22.onrender.com/api";
 
-export function useReport(period) {
-  const [data, setData] = useState(null);
+export function useReport(period: string) {
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchReport = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const res = await fetch(`${API_BASE}/report/summary?period=${period}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      setData(json);
-    } catch (err) {
-      setError(err.message);
+      const res = await fetch(`${API_BASE}/report?period=${period}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const text = await res.text();
+
+      // ✅ Safe JSON parsing
+      try {
+        const json = JSON.parse(text);
+        setData(json);
+      } catch {
+        console.error("❌ Backend returned HTML instead of JSON:", text);
+        setError("Invalid server response");
+      }
+
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Failed to fetch report");
     } finally {
       setLoading(false);
     }
+
   }, [period]);
 
   useEffect(() => {
@@ -28,6 +44,10 @@ export function useReport(period) {
 
   return { data, loading, error, refetch: fetchReport };
 }
+
+/* =========================
+   PERIODS HOOK
+========================= */
 
 export function usePeriods() {
   const [periods, setPeriods] = useState([
@@ -41,11 +61,11 @@ export function usePeriods() {
 
   useEffect(() => {
     fetch(`${API_BASE}/report/periods`)
-      .then((r) => r.json())
+      .then((res) => res.json())
       .then((data) => {
-        const mapped = data.map((p) => ({
+        const mapped = data.map((p: any) => ({
           value: p.value,
-          label: p.label.replace("Last ", "").replace("All time", "All time"),
+          label: p.label.replace("Last ", ""),
         }));
         setPeriods(mapped);
       })

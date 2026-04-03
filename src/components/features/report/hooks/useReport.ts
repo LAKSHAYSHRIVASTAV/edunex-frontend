@@ -12,7 +12,7 @@ export function useReport(period: string) {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/report?period=${period}`, {
+      const res = await fetch(`${API_BASE}/summary?period=${period}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

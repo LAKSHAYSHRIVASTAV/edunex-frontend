@@ -8,6 +8,7 @@
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #eee;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .report-header {
@@ -23,8 +24,14 @@
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4,1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .metric {

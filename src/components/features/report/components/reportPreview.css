@@ -47,7 +47,7 @@ html, body {
 .report-header p {
   margin-top: 6px;
   font-size: 14px;
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 /* ================= SCORE ================= */
@@ -63,7 +63,7 @@ html, body {
 
 .score-box p {
   font-size: 13px;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 /* ================= SECTION ================= */
@@ -81,7 +81,7 @@ html, body {
 .section-title {
   font-size: 14px;
   letter-spacing: 1px;
-  color: #666;
+  color: #222;   /* FIXED (was too light) */
   margin-bottom: 18px;
   font-weight: 600;
   text-transform: uppercase;
@@ -114,7 +114,7 @@ html, body {
 
 .metric p {
   font-size: 13px;
-  color: #777;
+  color: #444;   /* FIXED */
   margin-top: 4px;
 }
 
@@ -125,6 +125,11 @@ html, body {
   justify-content: space-between;
   margin-bottom: 6px;
   font-size: 14px;
+}
+
+.subject-row span {
+  color: #1a1a1a;   /* 🔥 FIXED VISIBILITY */
+  font-weight: 500;
 }
 
 .bar-track {
@@ -160,7 +165,7 @@ html, body {
 
 .quiz-header {
   font-weight: 600;
-  color: #666;
+  color: #333;   /* FIXED */
   font-size: 13px;
 }
 
@@ -168,8 +173,12 @@ html, body {
   border-bottom: 1px solid #f1f1f1;
 }
 
-.quiz-row:last-child {
-  border-bottom: none;
+.quiz-row span {
+  color: #1a1a1a;   /* 🔥 FIXED VISIBILITY */
+}
+
+.quiz-row span:last-child {
+  color: #555;   /* FIX DATE */
 }
 
 /* ================= SCORE ================= */
@@ -218,7 +227,7 @@ html, body {
 
 .insight-text {
   font-size: 14px;
-  color: #333;
+  color: #222;   /* FIXED */
 }
 
 /* ================= STREAK ================= */
@@ -237,7 +246,7 @@ html, body {
 
 .streak-label {
   font-size: 14px;
-  color: #666;
+  color: #444;   /* FIXED */
 }
 
 /* ================= SHARE ================= */
@@ -251,7 +260,7 @@ html, body {
 
 .share-links span {
   font-size: 14px;
-  color: #555;
+  color: #333;   /* FIXED */
   cursor: pointer;
 }
 

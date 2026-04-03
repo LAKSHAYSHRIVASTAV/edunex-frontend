@@ -196,79 +196,88 @@ export default function Dashboard() {
 
         <ActionButtons onFlashcardsClick={() => navigate("/flashcards")} />
 
-        {/* AI Insights */}
-        {learningInsights && (
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4">
-              🧠 AI Learning Insights
-            </h2>
+ {/* AI Insights */}
+{learningInsights && (
+  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
+    <h2 className="text-xl font-bold mb-4 text-gray-900">
+      🧠 AI Learning Insights
+    </h2>
 
-            <p>Mastery Score: {learningInsights.masteryScore}%</p>
-            <p>Weak Topics: {learningInsights.weakTopics?.join(", ") || "None"}</p>
-            <p>Strong Topics: {learningInsights.strongTopics?.join(", ") || "None"}</p>
-          </div>
-        )}
+    <p className="text-gray-800">
+      Mastery Score: {learningInsights.masteryScore}%
+    </p>
+    <p className="text-gray-800">
+      Weak Topics: {learningInsights.weakTopics?.join(", ") || "None"}
+    </p>
+    <p className="text-gray-800">
+      Strong Topics: {learningInsights.strongTopics?.join(", ") || "None"}
+    </p>
+  </div>
+)}
 
-        {/* Weekly Goal */}
-        {goalProgress && (
-          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-md flex flex-col items-center">
+{/* Weekly Goal */}
+{goalProgress && (
+  <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-md flex flex-col items-center">
 
-            <h2 className="text-xl font-bold mb-6">
-              🎯 Weekly Goal
-            </h2>
+    <h2 className="text-xl font-bold mb-6 text-gray-900">
+      🎯 Weekly Goal
+    </h2>
 
-            <div className="flex items-center gap-3 mb-6">
-              <input
-                type="number"
-                min="1"
-                value={newGoal}
-                onChange={(e) => setNewGoal(Number(e.target.value))}
-                className="w-20 px-2 py-1 border rounded text-center"
-              />
+    <div className="flex items-center gap-3 mb-6">
+      <input
+        type="number"
+        min="1"
+        value={newGoal}
+        onChange={(e) => setNewGoal(Number(e.target.value))}
+        className="w-20 px-2 py-1 border border-gray-300 rounded text-center text-gray-900 bg-white"
+      />
 
-              <button
-                onClick={handleUpdateGoal}
-                className="px-4 py-1 bg-indigo-600 text-white rounded hover:scale-105 transition"
-              >
-                Update
-              </button>
-            </div>
+      <button
+        onClick={handleUpdateGoal}
+        className="px-4 py-1 bg-indigo-600 text-white rounded hover:scale-105 transition"
+      >
+        Update
+      </button>
+    </div>
 
-            <ProgressRing percentage={goalProgress.progressPercentage} />
+    <ProgressRing percentage={goalProgress.progressPercentage} />
 
-            <p className="mt-6">
-              {goalProgress.completed} / {goalProgress.weeklyQuizTarget} quizzes completed
-            </p>
+    <p className="mt-6 text-gray-800">
+      {goalProgress.completed} / {goalProgress.weeklyQuizTarget} quizzes completed
+    </p>
 
-          </div>
-        )}
+  </div>
+)}
 
-        {/* Smart Recommendation */}
-        {recommendation && (
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
-            <h2 className="text-xl font-bold mb-4">
-              🧠 Smart Recommendation
-            </h2>
+{/* Smart Recommendation */}
+{recommendation && (
+  <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
+    <h2 className="text-xl font-bold mb-4 text-gray-900">
+      🧠 Smart Recommendation
+    </h2>
 
-            <p>{recommendation.recommendation}</p>
-          </div>
-        )}
+    <p className="text-gray-800">
+      {recommendation.recommendation}
+    </p>
+  </div>
+)}
 
-        {/* Progress Overview */}
-        {loading ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-md animate-pulse h-64"></div>
-        ) : (
-          progressOverview && <ProgressChart dashboardData={progressOverview} />
-        )}
+{/* Progress Overview */}
+{loading ? (
+  <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-md animate-pulse h-64"></div>
+) : (
+  progressOverview && <ProgressChart dashboardData={progressOverview} />
+)}
 
-        {/* Knowledge Graph */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white border border-gray-200 rounded-xl p-6 shadow-md mt-8"
-        >
-          <KnowledgeGraph data={knowledgeGraph} />
+{/* Knowledge Graph */}
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.4 }}
+  className="bg-white border border-gray-200 rounded-xl p-6 shadow-md mt-8 text-gray-900"
+>
+  <KnowledgeGraph data={knowledgeGraph} />
+
         </motion.div>
 
       </main>

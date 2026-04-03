@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -7,21 +7,44 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+}) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="fixed inset-0 bg-black opacity-50" onClick={onClose} />
-      <div className="bg-white rounded-lg shadow-lg p-6 z-10">
-        {title && <h2 className="text-lg font-semibold mb-4">{title}</h2>}
-        <div>{children}</div>
+
+      {/* LIGHT BACKDROP (FIXED) */}
+      <div
+        className="fixed inset-0 bg-gray-200/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* MODAL BOX */}
+      <div className="bg-white rounded-2xl shadow-xl p-6 z-10 w-[90%] max-w-md">
+
+        {/* TITLE */}
+        {title && (
+          <h2 className="text-lg font-semibold mb-4 text-gray-800">
+            {title}
+          </h2>
+        )}
+
+        {/* CONTENT */}
+        <div className="text-gray-700">{children}</div>
+
+        {/* BUTTON */}
         <button
-          className="mt-4 bg-blue-500 text-white rounded px-4 py-2"
+          className="mt-6 w-full bg-[#5b54d6] hover:bg-[#4c46c7] text-white rounded-lg px-4 py-2 transition"
           onClick={onClose}
         >
           Close
         </button>
+
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import {
   User,
   ShieldCheck,
   CalendarCheck,
+  FileText,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -23,6 +24,7 @@ export default function Sidebar() {
     { name: "Flashcards", path: "/flashcards", icon: BookOpen },
     { name: "AI Tutor", path: "/ai-tutor", icon: MessageCircle },
     { name: "Analytics", path: "/analytics", icon: BarChart },
+     { name: "Report", path: "/report", icon: FileText },
     { name: "Leaderboard", path: "/leaderboard", icon: Trophy },
     { name: "Achievements", path: "/achievements", icon: Award },
     { name: "Friends", path: "/friends", icon: Users },

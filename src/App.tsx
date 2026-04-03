@@ -92,23 +92,23 @@ function App() {
           }
         />
 
-        <Route
-          path="/report"
-          element={
-            <ProtectedRoute>
-              <ReportPage />
-            </ProtectedRoute>
-          }
-        />
-
        <Route
-          path="/report"
-          element={
-            <ProtectedRoute>
-              <ReportPreview />
-            </ProtectedRoute>
-          }
-        />
+  path="/report"
+  element={
+    <ProtectedRoute>
+      <ReportPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/report/:id"
+  element={
+    <ProtectedRoute>
+      <ReportPreview />
+    </ProtectedRoute>
+  }
+/>
 
         <Route
           path="/profile"

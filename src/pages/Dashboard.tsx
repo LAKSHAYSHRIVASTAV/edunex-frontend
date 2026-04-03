@@ -163,11 +163,11 @@ export default function Dashboard() {
   };
 
  return (
-  <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50">
+  <div className="min-h-screen bg-gray-50">
     
     <Navbar />
 
-    <div className="flex relative z-10">
+    <div className="flex">
       <Sidebar />
 
       <main className="flex-1 ml-64 px-10 py-12 space-y-12">
@@ -175,14 +175,14 @@ export default function Dashboard() {
         {/* Welcome */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
           
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-white/70 to-white/40 backdrop-blur-md border border-white/40 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 mb-6 shadow-sm">
             <Sparkles size={16} className="text-indigo-600" />
             <span className="text-sm font-semibold text-indigo-600">
               AI Powered
             </span>
           </div>
 
-          <h1 className="text-5xl font-black mb-4">
+          <h1 className="text-5xl font-black mb-4 text-gray-900">
             Welcome Back, {userName} 👋
           </h1>
 
@@ -198,7 +198,7 @@ export default function Dashboard() {
 
         {/* AI Insights */}
         {learningInsights && (
-          <div className="bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
             <h2 className="text-xl font-bold mb-4">
               🧠 AI Learning Insights
             </h2>
@@ -211,7 +211,7 @@ export default function Dashboard() {
 
         {/* Weekly Goal */}
         {goalProgress && (
-          <div className="bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-xl border border-white/40 rounded-xl p-8 shadow-lg flex flex-col items-center">
+          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-md flex flex-col items-center">
 
             <h2 className="text-xl font-bold mb-6">
               🎯 Weekly Goal
@@ -223,7 +223,7 @@ export default function Dashboard() {
                 min="1"
                 value={newGoal}
                 onChange={(e) => setNewGoal(Number(e.target.value))}
-                className="w-20 px-2 py-1 border rounded text-center bg-white/50"
+                className="w-20 px-2 py-1 border rounded text-center"
               />
 
               <button
@@ -245,7 +245,7 @@ export default function Dashboard() {
 
         {/* Smart Recommendation */}
         {recommendation && (
-          <div className="bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-md">
             <h2 className="text-xl font-bold mb-4">
               🧠 Smart Recommendation
             </h2>
@@ -256,7 +256,7 @@ export default function Dashboard() {
 
         {/* Progress Overview */}
         {loading ? (
-          <div className="bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-xl border border-white/40 rounded-xl p-8 shadow-lg animate-pulse h-64"></div>
+          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-md animate-pulse h-64"></div>
         ) : (
           progressOverview && <ProgressChart dashboardData={progressOverview} />
         )}
@@ -266,7 +266,7 @@ export default function Dashboard() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-xl border border-white/40 rounded-xl p-6 shadow-lg mt-8"
+          className="bg-white border border-gray-200 rounded-xl p-6 shadow-md mt-8"
         >
           <KnowledgeGraph data={knowledgeGraph} />
         </motion.div>

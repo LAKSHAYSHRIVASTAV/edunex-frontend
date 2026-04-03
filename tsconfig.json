@@ -9,7 +9,13 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "strict": false,
-    "noEmit": true
+    "noEmit": true,
+
+    
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"]
 }

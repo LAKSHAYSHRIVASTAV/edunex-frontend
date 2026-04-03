@@ -185,20 +185,21 @@ export default function SummaryCard() {
       />
 
       {/* Difficulty */}
-      <div>
-        <label className="block font-semibold mb-2 text-gray-700">
-          Select Difficulty
-        </label>
-        <select
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-          className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 transition"
-        >
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      </div>
+<div>
+  <label className="block font-semibold mb-2 text-gray-900">
+    Select Difficulty
+  </label>
+
+  <select
+    value={difficulty}
+    onChange={(e) => setDifficulty(e.target.value)}
+    className="w-full p-3 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+  >
+    <option value="easy" className="text-gray-900">Easy</option>
+    <option value="medium" className="text-gray-900">Medium</option>
+    <option value="hard" className="text-gray-900">Hard</option>
+  </select>
+</div>
 
       <div className="flex gap-4">
         <button

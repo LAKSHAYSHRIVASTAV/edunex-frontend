@@ -1,9 +1,11 @@
 /* ================= GLOBAL ================= */
 
-body {
-  background: #f5f6fa;
+html, body {
+  background: #f5f6fa !important;
   color: #1a1a1a;
   font-family: 'DM Sans', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 /* ================= CONTAINER ================= */
@@ -17,7 +19,7 @@ body {
 /* ================= CARD ================= */
 
 .report-card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #eee;
@@ -48,7 +50,7 @@ body {
   opacity: 0.9;
 }
 
-/* RIGHT SIDE SCORE */
+/* ================= SCORE ================= */
 
 .score-box {
   text-align: right;
@@ -69,6 +71,7 @@ body {
 .section {
   padding: 28px;
   border-bottom: 1px solid #eee;
+  background: white;
 }
 
 .section:last-child {
@@ -120,7 +123,7 @@ body {
 .subject-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 14px;
 }
 
@@ -128,7 +131,7 @@ body {
   background: #e5e7eb;
   height: 8px;
   border-radius: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .bar-fill {
@@ -136,7 +139,7 @@ body {
   border-radius: 10px;
 }
 
-/* COLORS */
+/* SUBJECT COLORS */
 
 .physics { background: #6a5acd; }
 .math { background: #2e8b57; }
@@ -177,7 +180,6 @@ body {
   font-size: 12px;
   font-weight: 500;
   display: inline-block;
-  width: fit-content;
 }
 
 .score-high {

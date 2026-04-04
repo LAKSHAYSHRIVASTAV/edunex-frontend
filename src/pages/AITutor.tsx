@@ -229,7 +229,7 @@ export default function AITutor() {
 
         {/* HEADER */}
         <div className="p-5 border-b flex justify-between items-center">
-          <h1 className="text-2xl font-bold">🤖 AI Tutor</h1>
+         <h1 className="text-2xl font-bold text-gray-900">🤖 AI Tutor</h1>
 
           {/* NEW PROGRESS UI */}
           <div className="flex items-center gap-3 bg-white/70 backdrop-blur-xl px-4 py-2 rounded-full shadow border hover:shadow-lg transition">
@@ -260,7 +260,7 @@ export default function AITutor() {
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {messages.length === 0 && (
             <div className="text-center mt-20 space-y-3">
-              <p className="text-gray-400">💡 Ask anything...</p>
+             <p className="text-gray-700">💡 Ask anything...</p>
 
               <div className="flex flex-wrap gap-2 justify-center">
                 {["Explain concept", "Give examples", "Make quiz"].map((s) => (
@@ -297,7 +297,7 @@ export default function AITutor() {
             </div>
           ))}
 
-          {loading && <div className="text-gray-400">🤖 Thinking...</div>}
+          {loading && <div className="text-gray-700">🤖 Thinking...</div>}
           <div ref={messagesEndRef} />
         </div>
 
@@ -307,7 +307,7 @@ export default function AITutor() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Ask anything..."
-            className="flex-1 p-3 rounded-xl border bg-[#fffaf5]/80"
+            className="flex-1 p-3 rounded-xl border bg-[#fffaf5]/80 text-gray-900"
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -331,7 +331,7 @@ export default function AITutor() {
         {/* BACK */}
         <button
           onClick={() => navigate("/dashboard")}
-          className="m-4 py-2 bg-gray-800 text-white rounded-xl"
+          className="px-3 py-1 bg-white shadow rounded-full text-sm text-gray-800"
         >
           ← Back
         </button>

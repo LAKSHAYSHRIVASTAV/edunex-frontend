@@ -73,8 +73,9 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
     set({ generating: true, error: null });
 
     try {
-      const res = await conceptMapAPI.generate(payload);
-      const newMap = res.data;
+      // ✅ FIXED
+      const response = await conceptMapAPI.generate(payload);
+      const newMap = response.data;
 
       set((state) => ({
         maps: [newMap, ...state.maps],
@@ -88,7 +89,7 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
 
       set({
         generating: false,
-        error: err?.response?.data?.message || err.message,
+        error: err.message || "Failed to generate map",
       });
 
       throw err;
@@ -101,16 +102,17 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
+      // ✅ FIXED
       const res = await conceptMapAPI.getAll(userId);
 
       set({
-        maps: res.data,
+        maps: res,
         loading: false,
       });
     } catch (err: any) {
       set({
         loading: false,
-        error: err?.response?.data?.message || err.message,
+        error: err.message || "Failed to fetch maps",
       });
     }
   },
@@ -121,18 +123,19 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
+      // ✅ FIXED
       const res = await conceptMapAPI.getOne(id);
 
       set({
-        currentMap: res.data,
+        currentMap: res,
         loading: false,
       });
 
-      return res.data;
+      return res;
     } catch (err: any) {
       set({
         loading: false,
-        error: err?.response?.data?.message || err.message,
+        error: err.message || "Failed to fetch map",
       });
     }
   },
@@ -150,7 +153,7 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
       }));
     } catch (err: any) {
       set({
-        error: err?.response?.data?.message || err.message,
+        error: err.message || "Failed to delete map",
       });
     }
   },

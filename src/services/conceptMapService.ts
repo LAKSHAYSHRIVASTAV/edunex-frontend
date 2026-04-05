@@ -4,43 +4,24 @@ const API = axios.create({
   baseURL: "https://edunex-backend-rj22.onrender.com/api",
 });
 
-/* ================= AUTH ================= */
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-});
-
-/* ================= RESPONSE CLEAN ================= */
-API.interceptors.response.use(
-  (res) => res.data,
-  (err) => {
-    const message =
-      err.response?.data?.message ||
-      err.message ||
-      "Something went wrong";
-
-    return Promise.reject(new Error(message));
-  }
-);
-
 export const conceptMapAPI = {
-  generate: (data: any) =>
-    API.post("/concept-maps/generate", data),
+  generate: async (data: any) => {
+    const res = await API.post("/concept-maps/generate", data);
+    return res.data; // ✅ MUST
+  },
 
-  getAll: (userId: string) =>
-    API.get(`/concept-maps/user/${userId}`),
+  getAll: async (userId: string) => {
+    const res = await API.get(`/concept-maps/user/${userId}`);
+    return res.data; // ✅ MUST
+  },
 
-  getOne: (id: string) =>
-    API.get(`/concept-maps/map/${id}`),
+  getOne: async (id: string) => {
+    const res = await API.get(`/concept-maps/map/${id}`);
+    return res.data; // ✅ MUST
+  },
 
-  delete: (id: string) =>
-    API.delete(`/concept-maps/map/${id}`),
-
-  updateLayout: (id: string, data: any) =>
-    API.patch(`/concept-maps/map/${id}/layout`, data),
+  delete: async (id: string) => {
+    const res = await API.delete(`/concept-maps/map/${id}`);
+    return res.data;
+  },
 };

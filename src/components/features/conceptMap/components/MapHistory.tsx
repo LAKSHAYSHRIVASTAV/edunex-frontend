@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import useConceptMapStore from "../hooks/useConceptMap";
-import "./MapHistory.css";
+
 
 /* ================= TIME FORMAT ================= */
 function timeAgo(dateStr?: string) {

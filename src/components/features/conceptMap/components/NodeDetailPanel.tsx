@@ -1,5 +1,5 @@
-import React from 'react';
-import './NodeDetailPanel.css';
+import React from "react";
+
 
 const TYPE_LABELS = {
   core: 'Core Concept',

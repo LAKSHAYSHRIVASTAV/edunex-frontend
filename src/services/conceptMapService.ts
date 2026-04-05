@@ -28,20 +28,19 @@ API.interceptors.response.use(
   }
 );
 
-/* ================= API ================= */
 export const conceptMapAPI = {
-  // ✅ FIXED ROUTES
- generate: (data) => API.post("/concept-maps", data),
+  generate: (data: any) =>
+    API.post("/concept-maps/generate", data),
 
   getAll: (userId: string) =>
-    API.get(`/concept-maps?userId=${userId}`),
+    API.get(`/concept-maps/user/${userId}`),
 
   getOne: (id: string) =>
-    API.get(`/concept-maps/${id}`),
+    API.get(`/concept-maps/map/${id}`),
 
   delete: (id: string) =>
-    API.delete(`/concept-maps/${id}`),
+    API.delete(`/concept-maps/map/${id}`),
 
   updateLayout: (id: string, data: any) =>
-    API.patch(`/concept-maps/${id}/layout`, data),
+    API.patch(`/concept-maps/map/${id}/layout`, data),
 };

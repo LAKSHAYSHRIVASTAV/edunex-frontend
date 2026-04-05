@@ -31,7 +31,7 @@ API.interceptors.response.use(
 /* ================= API ================= */
 export const conceptMapAPI = {
   // ✅ FIXED ROUTES
-  generate: (data: any) => API.post("/concept-maps/generate", data),
+ generate: (data) => API.post("/concept-maps", data),
 
   getAll: (userId: string) =>
     API.get(`/concept-maps?userId=${userId}`),

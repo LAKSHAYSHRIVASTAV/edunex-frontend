@@ -23,6 +23,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import ReportPage from "./components/features/report/ReportPage";
 import ReportPreview from "./components/features/report/ReportPreview";
+import ConceptMapPage from "./components/features/conceptMap/ConceptMapPage";
+
 
 
 function App() {
@@ -172,6 +174,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/concept-map"
+  element={
+    <ProtectedRoute>
+      <ConceptMapPage />
+    </ProtectedRoute>
+  }
+/>
 
         {/* ❌ 404 Page */}
         <Route path="*" element={<NotFound />} />

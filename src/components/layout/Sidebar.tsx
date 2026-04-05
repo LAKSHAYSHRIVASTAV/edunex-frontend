@@ -23,6 +23,7 @@ export default function Sidebar() {
    { name: "Quiz History", path: "/quiz-history", icon: Brain },
     { name: "Flashcards", path: "/flashcards", icon: BookOpen },
     { name: "AI Tutor", path: "/ai-tutor", icon: MessageCircle },
+    { name: "Concept Map", path: "/concept-map", icon: Brain },
     { name: "Analytics", path: "/analytics", icon: BarChart },
      { name: "Report", path: "/report", icon: BarChart },
     { name: "Leaderboard", path: "/leaderboard", icon: Trophy },

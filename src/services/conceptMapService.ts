@@ -17,7 +17,7 @@ API.interceptors.request.use((config) => {
 
 /* ================= RESPONSE CLEAN ================= */
 API.interceptors.response.use(
-  (res) => res.data, // ✅ important
+  (res) => res.data,
   (err) => {
     const message =
       err.response?.data?.message ||
@@ -30,17 +30,18 @@ API.interceptors.response.use(
 
 /* ================= API ================= */
 export const conceptMapAPI = {
-  generate: (data: any) => API.post("/concept-map", data),
+  // ✅ FIXED ROUTES
+  generate: (data: any) => API.post("/concept-maps/generate", data),
 
   getAll: (userId: string) =>
-    API.get(`/concept-map/${userId}`),
+    API.get(`/concept-maps?userId=${userId}`),
 
   getOne: (id: string) =>
-    API.get(`/concept-map/single/${id}`),
+    API.get(`/concept-maps/${id}`),
 
   delete: (id: string) =>
-    API.delete(`/concept-map/${id}`),
+    API.delete(`/concept-maps/${id}`),
 
   updateLayout: (id: string, data: any) =>
-    API.patch(`/concept-map/${id}/layout`, data), // 🔥 optional
+    API.patch(`/concept-maps/${id}/layout`, data),
 };

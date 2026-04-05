@@ -6,7 +6,7 @@ import MapHistory from "./components/MapHistory";
 import useConceptMapStore from "./hooks/useConceptMap";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./ConceptMapPage.css";
+
 
 /* ================= USER ID ================= */
 const USER_ID =

@@ -7,7 +7,6 @@ import useConceptMapStore from "./hooks/useConceptMap";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 /* ================= USER ID ================= */
 const USER_ID =
   localStorage.getItem("userId") ||
@@ -17,23 +16,12 @@ const USER_ID =
     return id;
   })();
 
-/* ================= TYPE COLORS ================= */
-const TYPE_COLORS: Record<string, string> = {
-  core: "#7c6dfa",
-  input: "#2dd4a7",
-  output: "#f5a623",
-  process: "#3b82f6",
-  unknown: "#888",
-};
-
 export default function ConceptMapPage() {
   const { currentMap, selectedNode, setSelectedNode, error } =
     useConceptMapStore();
 
   const [leftTab, setLeftTab] = useState<"generate" | "history">("generate");
   const [showSummary, setShowSummary] = useState(false);
-
-  /* ================= HANDLERS ================= */
 
   const handleNodeClick = useCallback(
     (node: any) => {
@@ -43,98 +31,85 @@ export default function ConceptMapPage() {
   );
 
   const handleGenerated = useCallback((map: any) => {
-    toast.success(
-      `Map "${map?.title || "Untitled"}" generated with ${
-        map?.nodes?.length || 0
-      } concepts!`
-    );
+    toast.success(`Map "${map?.title}" generated!`);
     setShowSummary(true);
   }, []);
-
-  /* ================= ERROR HANDLING ================= */
 
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
 
-  /* ================= SAFE VALUES ================= */
-
   const nodes = currentMap?.nodes || [];
   const edges = currentMap?.edges || [];
 
-  /* ================= NODE TYPE BREAKDOWN ================= */
-
-  const breakdown = Object.entries(
-    nodes.reduce((acc: any, n: any) => {
-      const type = n?.type || "unknown";
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {})
-  );
-
-  /* ================= UI ================= */
-
   return (
-    <div className="cm-page">
-      {/* LEFT SIDEBAR */}
-      <aside className="cm-sidebar cm-sidebar--left">
-        <div className="cm-sidebar__tabs">
+    <div className="flex h-screen bg-gray-100">
+
+      {/* ================= LEFT PANEL ================= */}
+      <aside className="w-80 bg-white border-r flex flex-col p-4 gap-4">
+        <h2 className="text-xl font-bold">Concept Map</h2>
+
+        {/* Tabs */}
+        <div className="flex gap-2">
           <button
-            className={`cm-tab ${leftTab === "generate" ? "active" : ""}`}
             onClick={() => setLeftTab("generate")}
+            className={`flex-1 py-2 rounded-lg ${
+              leftTab === "generate"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100"
+            }`}
           >
             Generate
           </button>
-
           <button
-            className={`cm-tab ${leftTab === "history" ? "active" : ""}`}
             onClick={() => setLeftTab("history")}
+            className={`flex-1 py-2 rounded-lg ${
+              leftTab === "history"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-100"
+            }`}
           >
             History
           </button>
         </div>
 
-        <div className="cm-sidebar__body">
+        {/* Panel */}
+        <div className="flex-1 overflow-auto">
           {leftTab === "generate" ? (
             <GeneratePanel onGenerated={handleGenerated} />
           ) : (
-            <MapHistory
-              userId={USER_ID}
-              onSelect={() => setLeftTab("generate")}
-            />
+            <MapHistory userId={USER_ID} />
           )}
         </div>
       </aside>
 
-      {/* MAIN CANVAS */}
-      <main className="cm-canvas-wrap">
-        {/* TOOLBAR */}
-        <div className="cm-toolbar">
+      {/* ================= MAIN CANVAS ================= */}
+      <main className="flex-1 flex flex-col">
+
+        {/* Top Bar */}
+        <div className="bg-white border-b p-4 flex justify-between items-center">
           {currentMap ? (
             <>
-              <div className="cm-toolbar__info">
-                <span className="cm-map-title">
-                  {currentMap.title || "Untitled Map"}
-                </span>
-                <span className="cm-map-meta">
+              <div>
+                <h2 className="font-semibold text-lg">
+                  {currentMap.title}
+                </h2>
+                <p className="text-sm text-gray-500">
                   {nodes.length} nodes · {edges.length} edges
-                </span>
+                </p>
               </div>
 
-              <div className="cm-toolbar__actions">
+              <div className="flex gap-2">
                 <button
-                  className="toolbar-btn"
                   onClick={() => setShowSummary((s) => !s)}
+                  className="px-3 py-1 bg-gray-200 rounded"
                 >
                   Summary
                 </button>
 
                 <button
-                  className="toolbar-btn"
                   onClick={() => {
-                    const svg = document.querySelector(
-                      ".cm-canvas-wrap svg"
-                    );
+                    const svg = document.querySelector("svg");
                     if (!svg) return;
 
                     const blob = new Blob([svg.outerHTML], {
@@ -143,37 +118,35 @@ export default function ConceptMapPage() {
 
                     const a = document.createElement("a");
                     a.href = URL.createObjectURL(blob);
-                    a.download = `${currentMap.title || "map"}.svg`;
+                    a.download = "concept-map.svg";
                     a.click();
-
-                    toast.success("SVG exported!");
                   }}
+                  className="px-3 py-1 bg-blue-500 text-white rounded"
                 >
                   Export
                 </button>
               </div>
             </>
           ) : (
-            <div className="cm-toolbar__placeholder">
-              Generate a concept map to get started
-            </div>
+            <p className="text-gray-500">
+              Generate a concept map to start
+            </p>
           )}
         </div>
 
-        {/* SUMMARY */}
+        {/* Summary */}
         {showSummary && currentMap?.summary && (
-          <div className="cm-summary-bar">
+          <div className="p-3 bg-yellow-50 border-b flex justify-between">
             <p>{currentMap.summary}</p>
             <button onClick={() => setShowSummary(false)}>✕</button>
           </div>
         )}
 
-        {/* CANVAS */}
-        <div className="cm-canvas">
+        {/* Canvas */}
+        <div className="flex-1 m-4 bg-white rounded-xl shadow relative">
           {!currentMap ? (
-            <div className="cm-empty-state">
-              <h2>No concept map yet</h2>
-              <p>Use Generate panel to create one</p>
+            <div className="flex items-center justify-center h-full text-gray-400">
+              No concept map yet
             </div>
           ) : (
             <ConceptMapCanvas
@@ -183,17 +156,10 @@ export default function ConceptMapPage() {
             />
           )}
         </div>
-
-        {/* HINT */}
-        {currentMap && (
-          <div className="cm-hint-bar">
-            🖱 Scroll to zoom · Drag to pan · Click nodes
-          </div>
-        )}
       </main>
 
-      {/* RIGHT PANEL */}
-      <aside className="cm-sidebar cm-sidebar--right">
+      {/* ================= RIGHT PANEL ================= */}
+      <aside className="w-80 bg-white border-l p-4 flex flex-col gap-4">
         {selectedNode ? (
           <NodeDetailPanel
             node={selectedNode}
@@ -201,57 +167,17 @@ export default function ConceptMapPage() {
             onClose={() => setSelectedNode(null)}
           />
         ) : (
-          <p className="cm-right-placeholder">
+          <p className="text-gray-400">
             Click node to see details
           </p>
         )}
 
-        {/* STATS */}
+        {/* Stats */}
         {currentMap && (
-          <div className="cm-stats">
-            <div className="cm-stats__title">Map Stats</div>
-
-            <div className="cm-stats__grid">
-              <div className="stat-item">
-                <span className="stat-val">{nodes.length}</span>
-                <span className="stat-label">Nodes</span>
-              </div>
-
-              <div className="stat-item">
-                <span className="stat-val">{edges.length}</span>
-                <span className="stat-label">Edges</span>
-              </div>
-
-              <div className="stat-item">
-                <span className="stat-val">
-                  {nodes.filter((n) => n?.type === "core").length}
-                </span>
-                <span className="stat-label">Core</span>
-              </div>
-
-              <div className="stat-item">
-                <span className="stat-val">
-                  {[...new Set(nodes.map((n) => n?.type || "unknown"))].length}
-                </span>
-                <span className="stat-label">Types</span>
-              </div>
-            </div>
-
-            {/* BREAKDOWN */}
-            <div className="cm-stats__breakdown">
-              {breakdown.map(([type, count]) => (
-                <div key={String(type)} className="breakdown-row">
-                  <span
-                    className="breakdown-dot"
-                    style={{
-                      background: TYPE_COLORS[String(type)] || "#888",
-                    }}
-                  />
-                  <span className="breakdown-type">{String(type)}</span>
-                  <span className="breakdown-count">{Number(count)}</span>
-                </div>
-              ))}
-            </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <h3 className="font-semibold mb-2">Stats</h3>
+            <p>Nodes: {nodes.length}</p>
+            <p>Edges: {edges.length}</p>
           </div>
         )}
       </aside>

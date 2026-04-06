@@ -39,6 +39,7 @@ export default function ConceptMapPage() {
     if (error) toast.error(error);
   }, [error]);
 
+  console.log("MAP:", currentMap);
   const nodes = currentMap?.nodes || [];
   const edges = currentMap?.edges || [];
 

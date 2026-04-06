@@ -25,6 +25,76 @@ type ConceptMap = {
   edges: EdgeType[];
 };
 
+/* ================= GRAPH BUILDER ================= */
+
+const buildGraph = (data: any) => {
+  const nodes: NodeType[] = [];
+  const edges: EdgeType[] = [];
+
+  // Core node
+  nodes.push({
+    id: "core",
+    label: data.core || data.title || "Main Concept",
+    type: "core",
+    position: { x: 300, y: 200 },
+  });
+
+  // Inputs
+  data.inputs?.forEach((item: string, i: number) => {
+    const id = `input-${i}`;
+    nodes.push({
+      id,
+      label: item,
+      type: "input",
+      position: { x: 100, y: 80 + i * 80 },
+    });
+
+    edges.push({
+      source: id,
+      target: "core",
+      label: "input",
+    });
+  });
+
+  // Outputs
+  data.outputs?.forEach((item: string, i: number) => {
+    const id = `output-${i}`;
+    nodes.push({
+      id,
+      label: item,
+      type: "output",
+      position: { x: 500, y: 80 + i * 80 },
+    });
+
+    edges.push({
+      source: "core",
+      target: id,
+      label: "produces",
+    });
+  });
+
+  // Byproducts
+  data.byproducts?.forEach((item: string, i: number) => {
+    const id = `by-${i}`;
+    nodes.push({
+      id,
+      label: item,
+      type: "byproduct",
+      position: { x: 300, y: 400 + i * 80 },
+    });
+
+    edges.push({
+      source: "core",
+      target: id,
+      label: "releases",
+    });
+  });
+
+  return { nodes, edges };
+};
+
+/* ================= STORE ================= */
+
 type ConceptMapStore = {
   maps: ConceptMap[];
   currentMap: ConceptMap | null;
@@ -47,8 +117,6 @@ type ConceptMapStore = {
   fetchMap: (id: string) => Promise<ConceptMap | void>;
   deleteMap: (id: string) => Promise<void>;
 };
-
-/* ================= STORE ================= */
 
 const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
   maps: [],
@@ -73,17 +141,27 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
     set({ generating: true, error: null });
 
     try {
-      // ✅ FIXED
-      const response = await conceptMapAPI.generate(payload);
-      const newMap = response.data;
+      // ✅ FIXED API CALL
+      const rawData = await conceptMapAPI.generate(payload);
+
+      // ✅ TRANSFORM TO GRAPH
+      const graph = buildGraph(rawData);
+
+      const finalMap: ConceptMap = {
+        _id: rawData._id,
+        title: rawData.title || rawData.core,
+        summary: rawData.summary,
+        nodes: graph.nodes,
+        edges: graph.edges,
+      };
 
       set((state) => ({
-        maps: [newMap, ...state.maps],
-        currentMap: newMap,
+        maps: [finalMap, ...state.maps],
+        currentMap: finalMap,
         generating: false,
       }));
 
-      return newMap;
+      return finalMap;
     } catch (err: any) {
       console.error("Generate Map Error:", err);
 
@@ -102,7 +180,6 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      // ✅ FIXED
       const res = await conceptMapAPI.getAll(userId);
 
       set({
@@ -123,15 +200,24 @@ const useConceptMapStore = create<ConceptMapStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      // ✅ FIXED
-      const res = await conceptMapAPI.getOne(id);
+      const rawData = await conceptMapAPI.getOne(id);
+
+      const graph = buildGraph(rawData);
+
+      const finalMap: ConceptMap = {
+        _id: rawData._id,
+        title: rawData.title || rawData.core,
+        summary: rawData.summary,
+        nodes: graph.nodes,
+        edges: graph.edges,
+      };
 
       set({
-        currentMap: res,
+        currentMap: finalMap,
         loading: false,
       });
 
-      return res;
+      return finalMap;
     } catch (err: any) {
       set({
         loading: false,

@@ -77,17 +77,20 @@ export default function ConceptMapCanvas({ mapData, onNodeClick, selectedNodeId 
         .on('zoom', (e) => g.attr('transform', e.transform))
     );
 
-    const nodes = mapData.nodes.map((n) => ({
-      ...n,
+   const nodes = (mapData.nodes || []).map((n) => ({
+  ...n,
       x: n.position?.x ?? W / 2,
       y: n.position?.y ?? H / 2,
     }));
 
     const nodeById = Object.fromEntries(nodes.map((n) => [n.id, n]));
-    const links = mapData.edges
-      .map((e) => ({ ...e, source: nodeById[e.source], target: nodeById[e.target] }))
-      .filter((e) => e.source && e.target);
-
+   const links = (mapData.edges || [])
+  .map((e) => ({
+    ...e,
+    source: nodeById[e.source],
+    target: nodeById[e.target],
+  }))
+  .filter((e) => e.source && e.target);
     // Simulation
     if (simRef.current) simRef.current.stop();
     simRef.current = d3

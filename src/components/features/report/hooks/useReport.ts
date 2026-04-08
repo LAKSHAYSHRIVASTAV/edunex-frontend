@@ -1,8 +1,20 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import API from "../../../../config/api";
 
-const API_BASE = "https://edunex-backend-rj22.onrender.com/api";
+const getStoredUserId = () => {
+  const storedUser = localStorage.getItem("user");
+  if (!storedUser) return null;
+
+  try {
+    const user = JSON.parse(storedUser);
+    return user?.id || user?._id || null;
+  } catch {
+    return null;
+  }
+};
 
 export function useReport(period: string) {
+  const userId = useMemo(getStoredUserId, []);
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,31 +24,16 @@ export function useReport(period: string) {
     setError(null);
 
     try {
-      const res = await fetch(`${API_BASE}/summary?period=${period}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const text = await res.text();
-
-      // ✅ Safe JSON parsing
-      try {
-        const json = JSON.parse(text);
-        setData(json);
-      } catch {
-        console.error("❌ Backend returned HTML instead of JSON:", text);
-        setError("Invalid server response");
-      }
-
+      const endpoint = userId ? `/report/${userId}` : "/summary";
+      const res = await API.get(endpoint, { params: { period } });
+      setData(res.data);
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Failed to fetch report");
+      setError(err?.response?.data?.message || err?.message || "Failed to fetch report");
+      setData(null);
     } finally {
       setLoading(false);
     }
-
-  }, [period]);
+  }, [period, userId]);
 
   useEffect(() => {
     fetchReport();
@@ -45,29 +42,25 @@ export function useReport(period: string) {
   return { data, loading, error, refetch: fetchReport };
 }
 
-/* =========================
-   PERIODS HOOK
-========================= */
-
 export function usePeriods() {
   const [periods, setPeriods] = useState([
-    { value: "7d", label: "7 days" },
-    { value: "30d", label: "30 days" },
-    { value: "3m", label: "3 months" },
-    { value: "6m", label: "6 months" },
-    { value: "1y", label: "1 year" },
-    { value: "all", label: "All time" },
+    { value: "7d", label: "7D" },
+    { value: "30d", label: "30D" },
+    { value: "3m", label: "3M" },
+    { value: "6m", label: "6M" },
+    { value: "1y", label: "1Y" },
+    { value: "all", label: "All" },
   ]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/report/periods`)
-      .then((res) => res.json())
-      .then((data) => {
-        const mapped = data.map((p: any) => ({
-          value: p.value,
-          label: p.label.replace("Last ", ""),
-        }));
-        setPeriods(mapped);
+    API.get("/report/periods")
+      .then((res) => {
+        setPeriods(
+          res.data.map((period: any) => ({
+            value: period.value,
+            label: period.value === "all" ? "All" : period.value.toUpperCase(),
+          }))
+        );
       })
       .catch(() => {});
   }, []);

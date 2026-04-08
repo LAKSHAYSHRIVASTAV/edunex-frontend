@@ -1,82 +1,51 @@
 import React from "react";
+import "./reportPreview.css";
 
-function Bone({ w = "100%", h = "16px", r = "8px", style = {} }) {
-  return (
-    <div style={{
-      width: w, height: h, borderRadius: r,
-      background: "var(--bg4)",
-      animation: "shimmer 1.4s ease-in-out infinite",
-      ...style,
-    }} />
-  );
+function Bone({ className = "" }) {
+  return <div className={`skeleton-bone ${className}`} />;
 }
 
 export default function SkeletonLoader() {
   return (
-    <div>
+    <div className="report skeleton-report">
       <style>{`
+        .skeleton-bone {
+          border-radius: 8px;
+          background: linear-gradient(90deg, #e5e7eb, #f3f4f6, #e5e7eb);
+          background-size: 200% 100%;
+          animation: shimmer 1.2s ease-in-out infinite;
+        }
+        .skeleton-report .report-hero { background: #ffffff; }
+        .skeleton-title { width: 320px; height: 38px; }
+        .skeleton-subtitle { width: 180px; height: 16px; margin-top: 12px; }
+        .skeleton-score { width: 132px; height: 132px; }
+        .skeleton-card { height: 96px; }
+        .skeleton-chart { height: 300px; }
         @keyframes shimmer {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
+          0% { background-position: 0 0; }
+          100% { background-position: -200% 0; }
         }
       `}</style>
 
-      {/* Header skeleton */}
-      <div style={{ marginBottom: "28px" }}>
-        <Bone w="220px" h="36px" r="10px" style={{ marginBottom: "10px" }} />
-        <Bone w="160px" h="14px" />
-      </div>
+      <section className="report-hero">
+        <div>
+          <Bone className="skeleton-title" />
+          <Bone className="skeleton-subtitle" />
+        </div>
+        <Bone className="skeleton-score" />
+      </section>
 
-      {/* Stats grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "20px" }}>
-        {[...Array(4)].map((_, i) => (
-          <div key={i} style={{
-            background: "var(--bg3)", border: "1px solid var(--border)",
-            borderRadius: "var(--r-lg)", padding: "20px",
-          }}>
-            <Bone w="60px" h="11px" style={{ marginBottom: "10px" }} />
-            <Bone w="80px" h="32px" r="6px" />
-          </div>
+      <section className="metrics-grid">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Bone key={index} className="metric-card skeleton-card" />
         ))}
-      </div>
+      </section>
 
-      {/* Two column layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-        {[...Array(2)].map((_, i) => (
-          <div key={i} style={{
-            background: "var(--bg2)", border: "1px solid var(--border)",
-            borderRadius: "var(--r-lg)", padding: "22px 24px",
-          }}>
-            <Bone w="100px" h="11px" style={{ marginBottom: "18px" }} />
-            {[...Array(5)].map((_, j) => (
-              <div key={j} style={{ marginBottom: "12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-                  <Bone w="80px" h="12px" />
-                  <Bone w="28px" h="12px" />
-                </div>
-                <Bone h="6px" r="3px" />
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      {/* Table skeleton */}
-      <div style={{
-        background: "var(--bg2)", border: "1px solid var(--border)",
-        borderRadius: "var(--r-lg)", padding: "22px 24px",
-      }}>
-        <Bone w="100px" h="11px" style={{ marginBottom: "18px" }} />
-        {[...Array(5)].map((_, i) => (
-          <div key={i} style={{ display: "flex", gap: "16px", padding: "11px 0", borderBottom: i < 4 ? "1px solid var(--border)" : "none" }}>
-            <Bone w="160px" h="13px" />
-            <Bone w="70px" h="13px" />
-            <Bone w="46px" h="20px" r="20px" />
-            <Bone w="40px" h="13px" />
-            <Bone w="60px" h="13px" />
-          </div>
-        ))}
-      </div>
+      <section className="dashboard-grid">
+        <Bone className="report-card wide skeleton-chart" />
+        <Bone className="report-card skeleton-chart" />
+        <Bone className="report-card skeleton-chart" />
+      </section>
     </div>
   );
 }

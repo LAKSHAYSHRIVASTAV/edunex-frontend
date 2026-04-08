@@ -3,30 +3,32 @@ import { useReport } from "./hooks/useReport";
 import ReportView from "./components/ReportView";
 import PeriodFilter from "./components/PeriodFilter";
 import SkeletonLoader from "./components/SkeletonLoader";
+import "./components/reportPreview.css";
 
 export default function ReportPage() {
   const [period, setPeriod] = useState("30d");
-  const { data, loading, error } = useReport(period);
+  const { data, loading, error, refetch } = useReport(period);
 
   return (
-  <div style={{
-    background: "#f5f6fa",
-    minHeight: "100vh",
-    padding: "30px"
-  }}>
+    <main className="report-shell">
+      <div className="report-toolbar">
+        <PeriodFilter value={period} onChange={setPeriod} />
+      </div>
 
-    {/* FILTER */}
-    <PeriodFilter value={period} onChange={setPeriod} />
+      {error && (
+        <section className="report-error">
+          <div>
+            <h2>Report could not load</h2>
+            <p>{error}</p>
+          </div>
+          <button type="button" onClick={refetch}>
+            Try again
+          </button>
+        </section>
+      )}
 
-    {/* ERROR */}
-    {error && <div>Error loading report</div>}
-
-    {/* LOADING */}
-    {loading && <SkeletonLoader />}
-
-    {/* FINAL UI */}
-    {!loading && data && <ReportView data={data} />}
-
-  </div>
-);
+      {loading && <SkeletonLoader />}
+      {!loading && !error && data && <ReportView data={data} period={period} />}
+    </main>
+  );
 }

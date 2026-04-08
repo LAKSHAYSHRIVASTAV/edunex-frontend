@@ -1,141 +1,74 @@
-import React, { useState } from 'react';
-import useConceptMapStore from '../hooks/useConceptMap';
+import React, { useState } from "react";
+import useConceptMapStore from "../hooks/useConceptMap";
+import type { ConceptNode } from "../utils/layout";
 
-import useConceptMap from '../hooks/useConceptMap';
+type GeneratePanelProps = {
+  concepts: ConceptNode[];
+  onGenerated?: (map: any) => void;
+  onConceptSelect?: (node: ConceptNode) => void;
+};
 
-const EXAMPLE_TOPICS = [
-  'Photosynthesis',
-  'Machine Learning',
-  'World War II',
-  'Blockchain Technology',
-  'Human Immune System',
-  'Newton\'s Laws of Motion',
-];
-
-export default function GeneratePanel({ onGenerated }) {
-  const [tab, setTab] = useState('text'); // 'text' | 'topic'
-  const [text, setText] = useState('');
-  const [topic, setTopic] = useState('');
-  const { generating, generateMap } = useConceptMap();
+export default function GeneratePanel({ concepts, onGenerated, onConceptSelect }: GeneratePanelProps) {
+  const [text, setText] = useState("");
+  const { generating, generateMap } = useConceptMapStore();
 
   const handleGenerate = async () => {
-    if (!text.trim() && !topic.trim()) return;
-    try {
-      const result = await generateMap({
-        text: tab === 'text' ? text : '',
-        topic: tab === 'topic' ? topic : '',
-        userId: localStorage.getItem('userId') || 'guest',
-      });
-      onGenerated && onGenerated(result);
-      setText('');
-      setTopic('');
-    } catch (err) {
-      // toast shown by store
-    }
+    if (!text.trim()) return;
+
+    const result = await generateMap({
+      text: text.trim(),
+      userId: localStorage.getItem("userId") || "guest",
+    });
+
+    onGenerated?.(result);
+    setText("");
   };
 
   return (
-    <div className="gen-panel">
-      <div className="gen-panel__header">
-        <div className="gen-panel__icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-        <div>
-          <h3 className="gen-panel__title">Concept Map Generator</h3>
-          <p className="gen-panel__subtitle">AI-powered knowledge visualization</p>
-        </div>
+    <div className="flex h-full flex-col gap-4">
+      <div>
+        <label className="mb-2 block text-sm font-semibold text-slate-700">
+          Study material
+        </label>
+        <textarea
+          className="min-h-[220px] w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+          placeholder="Paste notes, a chapter summary, or any text you want converted into a concept map."
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+        />
+        <p className="mt-2 text-xs text-slate-500">{text.length} characters</p>
       </div>
 
-      <div className="gen-panel__tabs">
-        <button className={`tab-btn ${tab === 'text' ? 'active' : ''}`} onClick={() => setTab('text')}>
-          Paste Text
-        </button>
-        <button className={`tab-btn ${tab === 'topic' ? 'active' : ''}`} onClick={() => setTab('topic')}>
-          By Topic
-        </button>
-      </div>
+      <button
+        className="rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+        onClick={handleGenerate}
+        disabled={generating || !text.trim()}
+      >
+        {generating ? "Generating..." : "Generate Concept Map"}
+      </button>
 
-      {tab === 'text' ? (
-        <div className="gen-panel__input-group">
-          <label className="input-label">Study Material</label>
-          <textarea
-            className="gen-textarea"
-            placeholder="Paste your notes, textbook content, or any study material here..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            rows={7}
-          />
-          <span className="char-count">{text.length} chars</span>
-        </div>
-      ) : (
-        <div className="gen-panel__input-group">
-          <label className="input-label">Topic or Subject</label>
-          <input
-            className="gen-input"
-            type="text"
-            placeholder="e.g. Photosynthesis, Machine Learning..."
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-          />
-          <div className="example-topics">
-            <span className="example-label">Try:</span>
-            {EXAMPLE_TOPICS.map((t) => (
-              <button key={t} className="example-chip" onClick={() => setTopic(t)}>
-                {t}
+      <div className="min-h-0 flex-1">
+        <h3 className="mb-3 text-sm font-semibold text-slate-700">
+          Concepts ({concepts.length})
+        </h3>
+        {concepts.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-slate-200 p-4 text-sm text-slate-500">
+            Generated concepts will appear here.
+          </div>
+        ) : (
+          <div className="flex max-h-full flex-col gap-2 overflow-auto pr-1">
+            {concepts.map((concept) => (
+              <button
+                key={concept.id}
+                className="rounded-lg border border-slate-200 bg-white p-3 text-left text-sm transition hover:border-blue-300 hover:bg-blue-50"
+                onClick={() => onConceptSelect?.(concept)}
+              >
+                <span className="block font-semibold text-slate-800">{concept.label}</span>
+                <span className="text-xs capitalize text-slate-500">{concept.type || "concept"}</span>
               </button>
             ))}
           </div>
-        </div>
-      )}
-
-      <button
-        className={`gen-btn ${generating ? 'loading' : ''}`}
-        onClick={handleGenerate}
-        disabled={generating || (!text.trim() && !topic.trim())}
-      >
-        {generating ? (
-          <>
-            <span className="spinner" />
-            Generating Map...
-          </>
-        ) : (
-          <>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Generate Concept Map
-          </>
         )}
-      </button>
-
-      <div className="gen-panel__info">
-        <div className="info-row">
-          <span className="info-dot" style={{ background: '#5B4EE8' }} />
-          <span>Core concept</span>
-        </div>
-        <div className="info-row">
-          <span className="info-dot" style={{ background: '#1D9E75' }} />
-          <span>Inputs / Requirements</span>
-        </div>
-        <div className="info-row">
-          <span className="info-dot" style={{ background: '#EF9F27' }} />
-          <span>Outputs / Results</span>
-        </div>
-        <div className="info-row">
-          <span className="info-dot" style={{ background: '#3B8BD4' }} />
-          <span>Processes</span>
-        </div>
-        <div className="info-row">
-          <span className="info-dot" style={{ background: '#D4537E' }} />
-          <span>Byproducts</span>
-        </div>
-        <div className="info-row">
-          <span className="info-dot" style={{ background: '#888780' }} />
-          <span>General concepts</span>
-        </div>
       </div>
     </div>
   );

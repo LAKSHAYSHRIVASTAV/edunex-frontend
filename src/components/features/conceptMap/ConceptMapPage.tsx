@@ -1,166 +1,135 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toPng } from "html-to-image";
+import toast from "react-hot-toast";
 import ConceptMapCanvas from "./components/ConceptMapCanvas";
 import GeneratePanel from "./components/GeneratePanel";
 import NodeDetailPanel from "./components/NodeDetailPanel";
-import MapHistory from "./components/MapHistory";
 import useConceptMapStore from "./hooks/useConceptMap";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import type { ConceptNode, LayoutMode } from "./utils/layout";
 
-/* ================= USER ID ================= */
-const USER_ID =
-  localStorage.getItem("userId") ||
-  (() => {
-    const id = "user_" + Math.random().toString(36).slice(2, 9);
-    localStorage.setItem("userId", id);
-    return id;
-  })();
+const LAYOUTS: LayoutMode[] = ["map", "tree", "radial", "timeline"];
 
 export default function ConceptMapPage() {
-  const { currentMap, selectedNode, setSelectedNode, error } =
-    useConceptMapStore();
+  const graphRef = useRef<HTMLDivElement>(null);
+  const { currentMap, selectedNode, setSelectedNode, error } = useConceptMapStore();
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("map");
 
-  const [leftTab, setLeftTab] = useState<"generate" | "history">("generate");
-  const [showSummary, setShowSummary] = useState(false);
+  const nodes = currentMap?.nodes || [];
+  const edges = currentMap?.edges || [];
 
-  const handleNodeClick = useCallback(
-    (node: any) => {
-      setSelectedNode(node);
-    },
-    [setSelectedNode]
+  const concepts = useMemo(
+    () => nodes.filter((node: ConceptNode) => node.type !== "core"),
+    [nodes]
   );
 
   const handleGenerated = useCallback((map: any) => {
-    toast.success(`Map "${map?.title}" generated!`);
-    setShowSummary(true);
+    toast.success(`Generated "${map?.title || "Concept Map"}"`);
   }, []);
+
+  const handleExport = useCallback(async () => {
+    if (!graphRef.current || !currentMap) return;
+
+    try {
+      const dataUrl = await toPng(graphRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+      });
+
+      const link = document.createElement("a");
+      link.download = `${currentMap.title || "concept-map"}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch {
+      toast.error("Unable to export the map right now.");
+    }
+  }, [currentMap]);
 
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
 
-  console.log("MAP:", currentMap);
-  const nodes = currentMap?.nodes || [];
-  const edges = currentMap?.edges || [];
-
   return (
-    <div className="flex h-screen bg-gray-100">
-
-      {/* ================= LEFT PANEL ================= */}
-      <aside className="w-80 bg-white border-r flex flex-col p-4 gap-4">
-        <h2 className="text-xl font-bold">Concept Map</h2>
-
-        {/* Tabs */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setLeftTab("generate")}
-            className={`flex-1 py-2 rounded-lg ${
-              leftTab === "generate"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-100"
-            }`}
-          >
-            Generate
-          </button>
-          <button
-            onClick={() => setLeftTab("history")}
-            className={`flex-1 py-2 rounded-lg ${
-              leftTab === "history"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-100"
-            }`}
-          >
-            History
-          </button>
+    <div className="flex h-screen overflow-hidden bg-slate-100 text-slate-900">
+      <aside className="flex w-80 shrink-0 flex-col gap-4 border-r border-slate-200 bg-white p-5">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+            Edunex
+          </p>
+          <h1 className="mt-1 text-2xl font-bold">Concept Map</h1>
         </div>
 
-        {/* Panel */}
-        <div className="flex-1 overflow-auto">
-          {leftTab === "generate" ? (
-            <GeneratePanel onGenerated={handleGenerated} />
-          ) : (
-            <MapHistory userId={USER_ID} />
-          )}
-        </div>
+        <GeneratePanel
+          concepts={concepts}
+          onGenerated={handleGenerated}
+          onConceptSelect={setSelectedNode}
+        />
       </aside>
 
-      {/* ================= MAIN CANVAS ================= */}
-      <main className="flex-1 flex flex-col">
-
-        {/* Top Bar */}
-        <div className="bg-white border-b p-4 flex justify-between items-center">
-          {currentMap ? (
-            <>
-              <div>
-                <h2 className="font-semibold text-lg">
-                  {currentMap.title}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {nodes.length} nodes · {edges.length} edges
-                </p>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowSummary((s) => !s)}
-                  className="px-3 py-1 bg-gray-200 rounded"
-                >
-                  Summary
-                </button>
-
-                <button
-                  onClick={() => {
-                    const svg = document.querySelector("svg");
-                    if (!svg) return;
-
-                    const blob = new Blob([svg.outerHTML], {
-                      type: "image/svg+xml",
-                    });
-
-                    const a = document.createElement("a");
-                    a.href = URL.createObjectURL(blob);
-                    a.download = "concept-map.svg";
-                    a.click();
-                  }}
-                  className="px-3 py-1 bg-blue-500 text-white rounded"
-                >
-                  Export
-                </button>
-              </div>
-            </>
-          ) : (
-            <p className="text-gray-500">
-              Generate a concept map to start
+      <main className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-bold">
+              {currentMap?.title || "Generate a concept map"}
+            </h2>
+            <p className="text-sm text-slate-500">
+              {currentMap ? `${nodes.length} nodes, ${edges.length} labeled edges` : "Paste study material to begin."}
             </p>
-          )}
-        </div>
+          </div>
 
-        {/* Summary */}
-        {showSummary && currentMap?.summary && (
-          <div className="p-3 bg-yellow-50 border-b flex justify-between">
-            <p>{currentMap.summary}</p>
-            <button onClick={() => setShowSummary(false)}>✕</button>
+          <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-1">
+            {LAYOUTS.map((layout) => (
+              <button
+                key={layout}
+                className={`rounded-md px-3 py-2 text-sm font-semibold capitalize transition ${
+                  layoutMode === layout
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-white"
+                }`}
+                onClick={() => setLayoutMode(layout)}
+              >
+                {layout}
+              </button>
+            ))}
+          </div>
+        </header>
+
+        {currentMap?.summary && (
+          <div className="border-b border-blue-100 bg-blue-50 px-5 py-3 text-sm text-blue-900">
+            {currentMap.summary}
           </div>
         )}
 
-        {/* Canvas */}
-        <div className="flex-1 m-4 bg-white rounded-xl shadow relative">
-          {!currentMap ? (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              No concept map yet
-            </div>
-          ) : (
-            <ConceptMapCanvas
-              mapData={currentMap}
-              onNodeClick={handleNodeClick}
-              selectedNodeId={selectedNode?.id}
-            />
-          )}
-        </div>
+        <section className="min-h-0 flex-1 p-5">
+          <div ref={graphRef} className="h-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            {!currentMap ? (
+              <div className="flex h-full items-center justify-center px-8 text-center text-slate-500">
+                Your generated graph visualization will appear here.
+              </div>
+            ) : (
+              <ConceptMapCanvas
+                mapData={currentMap}
+                layoutMode={layoutMode}
+                onNodeClick={setSelectedNode}
+                selectedNodeId={selectedNode?.id}
+              />
+            )}
+          </div>
+        </section>
+
+        <footer className="flex items-center justify-between border-t border-slate-200 bg-white px-5 py-4">
+          <p className="text-sm text-slate-500">Export the current map as a PNG.</p>
+          <button
+            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            onClick={handleExport}
+            disabled={!currentMap}
+          >
+            Export PNG
+          </button>
+        </footer>
       </main>
 
-      {/* ================= RIGHT PANEL ================= */}
-      <aside className="w-80 bg-white border-l p-4 flex flex-col gap-4">
+      <aside className="flex w-80 shrink-0 flex-col border-l border-slate-200 bg-white p-5">
         {selectedNode ? (
           <NodeDetailPanel
             node={selectedNode}
@@ -168,17 +137,8 @@ export default function ConceptMapPage() {
             onClose={() => setSelectedNode(null)}
           />
         ) : (
-          <p className="text-gray-400">
-            Click node to see details
-          </p>
-        )}
-
-        {/* Stats */}
-        {currentMap && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <h3 className="font-semibold mb-2">Stats</h3>
-            <p>Nodes: {nodes.length}</p>
-            <p>Edges: {edges.length}</p>
+          <div className="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+            Select a node to see concept details and its connections.
           </div>
         )}
       </aside>

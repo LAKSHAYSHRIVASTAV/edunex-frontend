@@ -9,11 +9,13 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@xyflow/react": "^12.10.2",
     "axios": "^1.13.5",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
     "d3": "^7.9.0",
     "framer-motion": "^6.5.1",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^0.344.0",
     "mammoth": "^1.11.0",
     "pdfjs-dist": "^5.4.624",

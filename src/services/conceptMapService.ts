@@ -1,12 +1,4 @@
-import axios from "axios";
-
-/* ================= AXIOS INSTANCE ================= */
-
-const API = axios.create({
-  baseURL: "https://edunex-backend-rj22.onrender.com/api", // ✅ IMPORTANT
-});
-
-/* ================= CONCEPT MAP API ================= */
+import API from "../config/api";
 
 export const conceptMapAPI = {
   generate: async (data: any) => {

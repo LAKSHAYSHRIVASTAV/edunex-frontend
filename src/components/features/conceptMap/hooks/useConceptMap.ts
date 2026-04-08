@@ -1,71 +1,86 @@
 import { create } from "zustand";
 import { conceptMapAPI } from "../../../../services/conceptMapService";
-
-/* ================= TYPES ================= */
-
-type NodeType = {
-  id: string;
-  label: string;
-  type?: string;
-  position?: { x: number; y: number };
-};
-
-type EdgeType = {
-  source: string;
-  target: string;
-  label?: string;
-  type?: string;
-};
+import type { ConceptEdge, ConceptNode } from "../utils/layout";
 
 type ConceptMap = {
   _id?: string;
   title?: string;
   summary?: string;
-  nodes: NodeType[];
-  edges: EdgeType[];
+  createdAt?: string;
+  tags?: string[];
+  nodes: ConceptNode[];
+  edges: ConceptEdge[];
 };
 
-/* ================= GRAPH BUILDER ================= */
+const unwrapResponse = (response: any) => response?.data || response?.map || response;
 
-const buildGraph = (data: any) => {
-  const nodes: NodeType[] = [];
-  const edges: EdgeType[] = [];
+const makeId = (value: any, fallback: string) =>
+  String(value?.id || value?._id || value?.key || fallback);
 
-  // Core
-  nodes.push({
-    id: "core",
-    label: data.title || "Main Concept",
-    type: "core",
-    position: { x: 300, y: 200 },
-  });
+const normalizeMap = (response: any): ConceptMap => {
+  const data = unwrapResponse(response) || {};
+  const sourceNodes = Array.isArray(data.nodes) ? data.nodes : [];
+  const sourceEdges = Array.isArray(data.edges) ? data.edges : [];
 
-  // Inputs
-  data.nodes?.forEach((n: any, i: number) => {
-    const id = n.id || `node-${i}`;
+  const normalizedNodes: ConceptNode[] = sourceNodes.map((node: any, index: number) => ({
+    id: makeId(node, `node-${index + 1}`),
+    label: node.label || node.name || node.title || `Concept ${index + 1}`,
+    type: node.type || node.category || "concept",
+    description: node.description || node.summary || node.details,
+    position: node.position,
+  }));
 
-    nodes.push({
-      id,
-      label: n.label || n.name,
-      type: n.type || "concept",
-      position: n.position || {
-        x: 200 + Math.random() * 200,
-        y: 100 + i * 80,
-      },
+  const hasCore = normalizedNodes.some((node) => node.type === "core" || node.id === "core");
+  const nodes = hasCore
+    ? normalizedNodes
+    : [
+        {
+          id: "core",
+          label: data.title || data.topic || "Main Concept",
+          type: "core",
+          description: data.summary,
+        },
+        ...normalizedNodes,
+      ];
+
+  const nodeIds = new Set(nodes.map((node) => node.id));
+  const edges = sourceEdges
+    .map((edge: any, index: number) => ({
+      id: edge.id || edge._id || `edge-${index + 1}`,
+      source: String(edge.source || edge.from || "core"),
+      target: String(edge.target || edge.to || ""),
+      label: edge.label || edge.relationship || edge.relation || "relates to",
+      type: edge.type,
+    }))
+    .filter((edge: ConceptEdge) => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+
+  if (!sourceEdges.length && nodes.length > 1) {
+    nodes.slice(1).forEach((node, index) => {
+      edges.push({
+        id: `core-edge-${index + 1}`,
+        source: "core",
+        target: node.id,
+        label: "includes",
+      });
     });
-  });
+  }
 
-  data.edges?.forEach((e: any) => {
-    edges.push({
-      source: e.source,
-      target: e.target,
-      label: e.label,
-    });
-  });
-
-  return { nodes, edges };
+  return {
+    _id: data._id || data.id,
+    title: data.title || data.topic || nodes[0]?.label || "Concept Map",
+    summary: data.summary || data.description,
+    createdAt: data.createdAt,
+    tags: data.tags,
+    nodes,
+    edges,
+  };
 };
 
-/* ================= STORE ================= */
+const normalizeMaps = (response: any) => {
+  const data = unwrapResponse(response);
+  const maps = Array.isArray(data) ? data : data?.maps || [];
+  return maps.map(normalizeMap);
+};
 
 const useConceptMapStore = create<any>((set) => ({
   maps: [],
@@ -75,121 +90,77 @@ const useConceptMapStore = create<any>((set) => ({
   error: null,
   selectedNode: null,
 
-  setSelectedNode: (node: NodeType | null) =>
-    set({ selectedNode: node }),
-
+  setSelectedNode: (node: ConceptNode | null) => set({ selectedNode: node }),
   clearError: () => set({ error: null }),
-
-  setCurrentMap: (map: ConceptMap) =>
-    set({ currentMap: map, selectedNode: null }),
-
-  /* ================= GENERATE ================= */
+  setCurrentMap: (map: ConceptMap) => set({ currentMap: normalizeMap(map), selectedNode: null }),
 
   generateMap: async (payload: any) => {
     set({ generating: true, error: null });
 
     try {
-      // 🔥 FIX: correct response handling
       const response = await conceptMapAPI.generate(payload);
-
-      const rawData = response.data; // ⚠️ IMPORTANT
-
-      const graph = buildGraph(rawData);
-
-      const finalMap: ConceptMap = {
-        _id: rawData._id,
-        title: rawData.title,
-        summary: rawData.summary,
-        nodes: graph.nodes,
-        edges: graph.edges,
-      };
+      const finalMap = normalizeMap(response);
 
       set((state: any) => ({
         maps: [finalMap, ...state.maps],
         currentMap: finalMap,
+        selectedNode: null,
         generating: false,
       }));
 
       return finalMap;
     } catch (err: any) {
-      console.error(err);
-
       set({
         generating: false,
-        error: err.message || "Failed to generate map",
+        error: err?.response?.data?.message || err.message || "Failed to generate map",
       });
 
       throw err;
     }
   },
 
-  /* ================= FETCH ALL ================= */
-
   fetchMaps: async (userId: string) => {
     set({ loading: true, error: null });
 
     try {
-      const res = await conceptMapAPI.getAll(userId);
-
-      set({
-        maps: res.data || [],
-        loading: false,
-      });
+      const response = await conceptMapAPI.getAll(userId);
+      set({ maps: normalizeMaps(response), loading: false });
     } catch (err: any) {
       set({
         loading: false,
-        error: err.message || "Failed to fetch maps",
+        error: err?.response?.data?.message || err.message || "Failed to fetch maps",
       });
     }
   },
-
-  /* ================= FETCH ONE ================= */
 
   fetchMap: async (id: string) => {
     set({ loading: true, error: null });
 
     try {
       const response = await conceptMapAPI.getOne(id);
-      const rawData = response.data;
-
-      const graph = buildGraph(rawData);
-
-      const finalMap: ConceptMap = {
-        _id: rawData._id,
-        title: rawData.title,
-        summary: rawData.summary,
-        nodes: graph.nodes,
-        edges: graph.edges,
-      };
-
-      set({
-        currentMap: finalMap,
-        loading: false,
-      });
-
+      const finalMap = normalizeMap(response);
+      set({ currentMap: finalMap, selectedNode: null, loading: false });
       return finalMap;
     } catch (err: any) {
       set({
         loading: false,
-        error: err.message || "Failed to fetch map",
+        error: err?.response?.data?.message || err.message || "Failed to fetch map",
       });
     }
   },
-
-  /* ================= DELETE ================= */
 
   deleteMap: async (id: string) => {
     try {
       await conceptMapAPI.delete(id);
 
       set((state: any) => ({
-        maps: state.maps.filter((m: any) => m._id !== id),
-        currentMap:
-          state.currentMap?._id === id ? null : state.currentMap,
+        maps: state.maps.filter((map: ConceptMap) => map._id !== id),
+        currentMap: state.currentMap?._id === id ? null : state.currentMap,
+        selectedNode: state.currentMap?._id === id ? null : state.selectedNode,
       }));
     } catch (err: any) {
       set({
-        error: err.message || "Failed to delete map",
+        error: err?.response?.data?.message || err.message || "Failed to delete map",
       });
     }
   },

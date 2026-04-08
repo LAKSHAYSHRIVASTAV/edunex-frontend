@@ -216,15 +216,34 @@ body {
   display: flex;
   align-items: end;
   gap: 8px;
-  height: 74px;
+  height: 110px;
   margin-top: 20px;
 }
 
 .consistency-row div {
   flex: 1;
-  min-height: 8px;
+  display: grid;
+  align-items: end;
+  gap: 6px;
+  min-width: 42px;
+  background: transparent;
+  text-align: center;
+}
+
+.consistency-row i {
+  display: block;
+  width: 100%;
+  min-height: 10px;
   border-radius: 8px 8px 0 0;
   background: #2563eb;
+}
+
+.consistency-row span,
+.consistency-row small {
+  color: #64748b;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 700;
 }
 
 .subject-list,
@@ -239,13 +258,12 @@ body {
 
 .subject-item {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap: 8px 12px;
   align-items: center;
 }
 
 .subject-item div:first-child {
-  grid-column: span 2;
   display: flex;
   justify-content: space-between;
 }
@@ -281,17 +299,19 @@ body {
   background: #e5e7eb;
 }
 
-.bar-track div,
+.subject-fill {
+  height: 100%;
+  border-radius: 8px;
+}
+
 .score-pill.excellent {
   background: #059669;
 }
 
-.bar-track div.average,
 .score-pill.average {
   background: #d97706;
 }
 
-.bar-track div.weak,
 .score-pill.weak {
   background: #dc2626;
 }
@@ -403,6 +423,73 @@ body {
   color: #2563eb;
   font-style: normal;
   font-weight: 700;
+}
+
+.chart-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin-top: 12px;
+}
+
+.chart-legend div {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  color: #111827;
+  font-size: 13px;
+}
+
+.chart-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.chart-legend strong {
+  color: #334155;
+}
+
+.share-card {
+  display: grid;
+  gap: 14px;
+}
+
+.share-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.share-links button {
+  border: 0;
+  background: transparent;
+  color: #334155;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.share-links button:hover {
+  color: #111827;
+  text-decoration: underline;
+}
+
+.share-links .download-btn {
+  background: #2563eb;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 800;
+  padding: 10px 16px;
+  text-decoration: none;
+}
+
+.share-links .download-btn:hover {
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .report-error {

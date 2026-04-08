@@ -6,6 +6,7 @@ import {
   Cell,
   Line,
   LineChart,
+  LabelList,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -34,7 +35,9 @@ export function PerformanceLineChart({ data }: any) {
         <XAxis dataKey="date" tickFormatter={formatShortDate} tick={{ fontSize: 12 }} />
         <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
         <Tooltip labelFormatter={formatDate} />
-        <Line type="monotone" dataKey="score" stroke="#2563eb" strokeWidth={3} dot={false} />
+        <Line type="monotone" dataKey="score" stroke="#2563eb" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }}>
+          <LabelList dataKey="score" position="top" formatter={(value: number) => `${value}%`} fontSize={11} fill="#334155" />
+        </Line>
       </LineChart>
     </ResponsiveContainer>
   );
@@ -62,7 +65,16 @@ export function TimePieChart({ data }: any) {
   return (
     <ResponsiveContainer width="100%" height={240}>
       <PieChart>
-        <Pie data={data} dataKey="hours" nameKey="subject" innerRadius={58} outerRadius={86} paddingAngle={4}>
+        <Pie
+          data={data}
+          dataKey="hours"
+          nameKey="subject"
+          innerRadius={58}
+          outerRadius={86}
+          paddingAngle={4}
+          label={({ subject, hours }) => `${subject} ${hours}%`}
+          labelLine={false}
+        >
           {data.map((item: any) => (
             <Cell key={item.subject} fill={subjectColor(item.subject)} />
           ))}

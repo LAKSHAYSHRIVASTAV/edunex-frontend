@@ -18,6 +18,14 @@ const formatDate = (date: string) =>
 const formatShortDate = (date: string) =>
   new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 
+const subjectColor = (subject = "General") => {
+  const colors = ["#2563eb", "#059669", "#d97706", "#dc2626", "#0891b2", "#4f46e5", "#7c2d12"];
+  const index = subject.split("").reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % colors.length;
+  return colors[index];
+};
+
+const formatDay = (date: string) => new Date(date).toLocaleDateString("en-IN", { weekday: "short" });
+
 const scoreClass = (score: number) => {
   if (score >= 80) return "excellent";
   if (score >= 50) return "average";
@@ -50,7 +58,12 @@ export default function ReportView({ data, period }: any) {
   const trendPeriod = period === "7d" || period === "30d" ? period : "90d";
   const performanceData = data.trends?.performance?.[trendPeriod] || [];
   const studyHours = data.trends?.studyHours?.["7d"] || [];
-  const timeDistribution = data.timeDistribution || [];
+  const rawTimeDistribution = data.timeDistribution || [];
+  const timeTotal = rawTimeDistribution.reduce((sum: number, item: any) => sum + Number(item.hours || 0), 0);
+  const timeDistribution = rawTimeDistribution.map((item: any) => ({
+    ...item,
+    hours: timeTotal ? Math.round((Number(item.hours || 0) / timeTotal) * 100) : 0,
+  }));
   const gamification = data.gamification || {};
 
   const quizSubjects = useMemo(
@@ -66,6 +79,16 @@ export default function ReportView({ data, period }: any) {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
   }, [quizzes, subjectFilter, sortBy]);
+
+  const shareText = `${data.user?.name || "My"} Edunex report: ${data.overallScore || 0}% overall score, ${stats.quizzesDone || 0} quizzes, ${stats.totalHours || 0}h studied.`;
+
+  const copyReportLink = () => {
+    navigator.clipboard?.writeText(window.location.href);
+  };
+
+  const downloadReport = () => {
+    window.print();
+  };
 
   return (
     <div className="report">
@@ -107,7 +130,11 @@ export default function ReportView({ data, period }: any) {
           </div>
           <div className="consistency-row">
             {studyHours.map((day: any) => (
-              <div key={day.date} title={`${formatDate(day.date)}: ${day.hours}h`} style={{ height: `${Math.max(8, day.hours * 24)}px` }} />
+              <div key={day.date} title={`${formatDate(day.date)}: ${day.hours}h`}>
+                <span>{day.hours}h</span>
+                <i style={{ height: `${Math.max(10, day.hours * 24)}px` }} />
+                <small>{formatDay(day.date)}</small>
+              </div>
             ))}
           </div>
         </Card>
@@ -121,6 +148,15 @@ export default function ReportView({ data, period }: any) {
         <Card title="Time Distribution">
           <ChartBoundary empty={!timeDistribution.length}>
             <TimePieChart data={timeDistribution} />
+            <div className="chart-legend">
+              {timeDistribution.map((item: any) => (
+                <div key={item.subject}>
+                  <i style={{ background: subjectColor(item.subject) }} />
+                  <span>{item.subject}</span>
+                  <strong>{item.hours}%</strong>
+                </div>
+              ))}
+            </div>
           </ChartBoundary>
         </Card>
       </section>
@@ -135,12 +171,17 @@ export default function ReportView({ data, period }: any) {
                 <div key={subject.subject} className="subject-item">
                   <div>
                     <span>{subject.subject}</span>
-                    <em className={trend.className}>{trend.icon}{trend.label}</em>
+                    <strong>{subject.progress}%</strong>
                   </div>
                   <div className="bar-track">
-                    <div className={scoreClass(subject.progress)} style={{ width: `${subject.progress}%` }} />
+                    <div
+                      className="subject-fill"
+                      style={{ width: `${subject.progress}%`, background: subjectColor(subject.subject) }}
+                    />
                   </div>
-                  <strong>{subject.progress}%</strong>
+                  {subject.improvementRate ? (
+                    <em className={trend.className}>{trend.icon}{trend.label} trend</em>
+                  ) : null}
                 </div>
               );
             })}
@@ -252,6 +293,18 @@ export default function ReportView({ data, period }: any) {
             ))}
           </div>
         </Card>
+      </section>
+
+      <section className="report-card share-card">
+        <p className="eyebrow">Share your progress</p>
+        <div className="share-links">
+          <button type="button" onClick={() => window.open(`https://www.instagram.com/`, "_blank")}>Instagram</button>
+          <button type="button" onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank")}>WhatsApp</button>
+          <button type="button" onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank")}>Twitter</button>
+          <button type="button" onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, "_blank")}>LinkedIn</button>
+          <button type="button" onClick={copyReportLink}>Copy Link</button>
+          <button type="button" className="download-btn" onClick={downloadReport}>Download PDF</button>
+        </div>
       </section>
     </div>
   );

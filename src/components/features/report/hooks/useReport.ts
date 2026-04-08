@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import API from "../../../../config/api";
 
-const getStoredUserId = () => {
+const getStoredUser = () => {
   const storedUser = localStorage.getItem("user");
   if (!storedUser) return null;
 
   try {
-    const user = JSON.parse(storedUser);
-    return user?.id || user?._id || null;
+    return JSON.parse(storedUser);
   } catch {
     return null;
   }
 };
+
+const getStoredUserId = () => getStoredUser()?.id || getStoredUser()?._id || null;
 
 const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, Number(value) || 0));
 
@@ -47,9 +48,32 @@ const buildPerformanceTrend = (quizzes: any[]) => {
   }));
 };
 
-const normalizeReport = (raw: any, period: string) => {
+const normalizeUser = (rawUser: any, loggedInUser: any) => {
+  const realUser = loggedInUser || rawUser || {};
+  const name = realUser.name || realUser.fullName || realUser.username || realUser.email?.split("@")[0] || "Student";
+
+  return {
+    ...rawUser,
+    ...realUser,
+    id: realUser.id || realUser._id || rawUser?.id || rawUser?._id,
+    name,
+    email: realUser.email || rawUser?.email,
+    avatarInitials: name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part: string) => part[0])
+      .join("")
+      .toUpperCase(),
+  };
+};
+
+const normalizeReport = (raw: any, period: string, loggedInUser: any) => {
   if (!raw) return raw;
-  if (raw.studyStats && raw.subjectBreakdown && raw.quizHistory) return raw;
+  const reportUser = normalizeUser(raw.user, loggedInUser);
+  if (raw.studyStats && raw.subjectBreakdown && raw.quizHistory) {
+    return { ...raw, user: reportUser };
+  }
 
   const generatedAt = raw.generatedAt || new Date().toISOString();
   const oldStats = raw.stats || {};
@@ -115,7 +139,7 @@ const normalizeReport = (raw: any, period: string) => {
 
   return {
     ...raw,
-    user: raw.user || { name: "Student" },
+    user: reportUser,
     period: raw.period || period,
     generatedAt,
     overallScore,
@@ -164,7 +188,8 @@ const normalizeReport = (raw: any, period: string) => {
 };
 
 export function useReport(period: string) {
-  const userId = useMemo(getStoredUserId, []);
+  const loggedInUser = useMemo(getStoredUser, []);
+  const userId = loggedInUser?.id || loggedInUser?._id || null;
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -188,14 +213,14 @@ export function useReport(period: string) {
         }
       }
 
-      setData(normalizeReport(res.data, period));
+      setData(normalizeReport(res.data, period, loggedInUser));
     } catch (err: any) {
       setError(err?.response?.data?.message || err?.message || "Failed to fetch report");
       setData(null);
     } finally {
       setLoading(false);
     }
-  }, [period, userId]);
+  }, [period, userId, loggedInUser]);
 
   useEffect(() => {
     fetchReport();

@@ -63,8 +63,18 @@ export default function ReportView({ data, period }: any) {
   const timeDistribution = rawTimeDistribution.map((item: any) => ({
     ...item,
     hours: timeTotal ? Math.round((Number(item.hours || 0) / timeTotal) * 100) : 0,
-  }));
+  })).filter((item: any) => item.hours > 0);
   const gamification = data.gamification || {};
+  const visibleStudyHours = studyHours.length
+    ? studyHours
+    : Array.from({ length: 7 }).map((_, index) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - index));
+        return { date: date.toISOString(), hours: 0 };
+      });
+  const strongestSubject = subjects[0];
+  const focusTopic = weakTopics[0] || recommendations[0];
+  const performanceHasValues = performanceData.some((item: any) => Number(item.score || 0) > 0);
 
   const quizSubjects = useMemo(
     () => ["All", ...Array.from(new Set(quizzes.map((quiz: any) => quiz.subject).filter(Boolean)))],
@@ -93,10 +103,17 @@ export default function ReportView({ data, period }: any) {
   return (
     <div className="report">
       <section className="report-hero">
-        <div>
+        <div className="report-title-block">
           <p className="eyebrow">Learning analytics</p>
-          <h1>{data.user?.name || "Student"}'s Learning Report</h1>
-          <p>{formatDate(data.generatedAt)}</p>
+          <div className="user-report-heading">
+            <span>{data.user?.avatarInitials || "ST"}</span>
+            <div>
+              <h1>{data.user?.name || "Student"}'s Learning Report</h1>
+              <p>
+                Generated for {data.user?.email || "your Edunex account"} on {formatDate(data.generatedAt)}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="score-orb">
           <strong>{data.overallScore || 0}%</strong>
@@ -113,9 +130,31 @@ export default function ReportView({ data, period }: any) {
         <Metric label="XP level" value={`Lv ${gamification.level || 1}`} sub={`${gamification.xp || 0} XP`} />
       </section>
 
+      <section className="report-highlights">
+        <article>
+          <span>Strongest subject</span>
+          <strong>{strongestSubject?.subject || "Start with a quiz"}</strong>
+          <p>{strongestSubject ? `${strongestSubject.progress}% current performance` : "Your first quiz will unlock subject ranking."}</p>
+        </article>
+        <article>
+          <span>Focus area</span>
+          <strong>{focusTopic?.topic || focusTopic?.subject || "No weak area yet"}</strong>
+          <p>{focusTopic ? "Recommended for your next short study session." : "Keep adding activity to personalize this."}</p>
+        </article>
+        <article>
+          <span>Next score forecast</span>
+          <strong>{data.expectedScoreNextWeek || 0}%</strong>
+          <p>Based on your recent report trend.</p>
+        </article>
+      </section>
+
       <section className="dashboard-grid">
         <Card title="Performance Trend" className="wide">
-          <ChartBoundary empty={!performanceData.length}>
+          <ChartBoundary
+            empty={!performanceData.length || !performanceHasValues}
+            title="No performance points yet"
+            detail="Take a quiz to start plotting your score trend across this report period."
+          >
             <PerformanceLineChart data={performanceData} />
           </ChartBoundary>
         </Card>
@@ -129,7 +168,7 @@ export default function ReportView({ data, period }: any) {
             <span>Best: {data.streak?.best || 0} days</span>
           </div>
           <div className="consistency-row">
-            {studyHours.map((day: any) => (
+            {visibleStudyHours.map((day: any) => (
               <div key={day.date} title={`${formatDate(day.date)}: ${day.hours}h`}>
                 <span>{day.hours}h</span>
                 <i style={{ height: `${Math.max(10, day.hours * 24)}px` }} />
@@ -140,13 +179,21 @@ export default function ReportView({ data, period }: any) {
         </Card>
 
         <Card title="Subject Comparison">
-          <ChartBoundary empty={!subjects.length}>
+          <ChartBoundary
+            empty={!subjects.length}
+            title="No subject comparison yet"
+            detail="Complete quizzes across subjects to compare your progress here."
+          >
             <SubjectBarChart data={subjects} />
           </ChartBoundary>
         </Card>
 
         <Card title="Time Distribution">
-          <ChartBoundary empty={!timeDistribution.length}>
+          <ChartBoundary
+            empty={!timeDistribution.length}
+            title="No study time logged yet"
+            detail="Study sessions, summaries, flashcards, and quizzes will appear here as subject-wise time share."
+          >
             <TimePieChart data={timeDistribution} />
             <div className="chart-legend">
               {timeDistribution.map((item: any) => (
@@ -331,9 +378,23 @@ function Card({ title, children, className = "" }: any) {
   );
 }
 
-function ChartBoundary({ empty, children }: any) {
-  if (empty) return <EmptyState>No chart data yet.</EmptyState>;
+function ChartBoundary({ empty, children, title, detail }: any) {
+  if (empty) return <ChartEmpty title={title} detail={detail} />;
   return <Suspense fallback={<EmptyState>Loading chart...</EmptyState>}>{children}</Suspense>;
+}
+
+function ChartEmpty({ title, detail }: any) {
+  return (
+    <div className="chart-empty">
+      <div className="chart-empty-visual">
+        <span />
+        <span />
+        <span />
+      </div>
+      <strong>{title || "No chart data yet"}</strong>
+      <p>{detail || "New activity will appear here automatically."}</p>
+    </div>
+  );
 }
 
 function FocusList({ items, empty }: any) {

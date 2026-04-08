@@ -60,7 +60,8 @@ export default function Register() {
       alert("Account created successfully");
       navigate("/login");
     } catch (error) {
-      alert("Server error. Please try again.");
+      console.error("Register request failed:", error);
+      alert("Unable to reach the registration server. Please try again.");
     }
   };
 
@@ -181,6 +182,7 @@ export default function Register() {
     </div>
   );
 }
+
 
 
 

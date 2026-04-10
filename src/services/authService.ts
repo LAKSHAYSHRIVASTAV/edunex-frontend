@@ -18,6 +18,10 @@ type RegisterPayload = {
 
 const getErrorMessage = (error: any, fallback: string) => {
   if (error?.response?.data?.message) return error.response.data.message;
+  if (error?.response?.status === 500) return "Backend error. Check server configuration.";
+  if (!error?.response && error?.message === "Network Error") {
+    return "Cannot reach the backend. Check API URL, backend status, and CORS.";
+  }
   if (error?.message) return error.message;
   return fallback;
 };

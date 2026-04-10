@@ -7,12 +7,9 @@ const isLocalhost =
   ["localhost", "127.0.0.1"].includes(window.location.hostname);
 
 const envBaseUrl = import.meta.env.VITE_API_URL;
+const defaultProductionApi = "https://edunex-backend-rj22.onrender.com/api";
 
-const resolvedBaseUrl = !isBrowser
-  ? envBaseUrl || "https://edunex-backend-rj22.onrender.com/api"
-  : isLocalhost
-    ? envBaseUrl || "https://edunex-backend-rj22.onrender.com/api"
-    : "/api";
+const resolvedBaseUrl = envBaseUrl || defaultProductionApi;
 
 const API = axios.create({
   baseURL: resolvedBaseUrl,

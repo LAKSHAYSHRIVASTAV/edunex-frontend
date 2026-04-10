@@ -16,7 +16,7 @@ export const generateUniqueId = (): string => {
 };
 
 export const debounce = (func: Function, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
     return (...args: any[]) => {
         if (timeoutId) clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {

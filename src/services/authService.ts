@@ -1,3 +1,5 @@
+import API from "../config/api";
+
 export type AuthResponse = {
   token: string;
   user: {
@@ -8,26 +10,41 @@ export type AuthResponse = {
   message?: string;
 };
 
-const BASE_URL = "https://edunex-backend-rj22.onrender.com";
+type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+};
 
-export async function loginUser(
-  email: string,
-  password: string
-): Promise<AuthResponse> {
-  const res = await fetch(`${BASE_URL}/api/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
+const getErrorMessage = (error: any, fallback: string) => {
+  if (error?.response?.data?.message) return error.response.data.message;
+  if (error?.message) return error.message;
+  return fallback;
+};
 
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data?.message || "Login failed");
+export async function loginUser(email: string, password: string): Promise<AuthResponse> {
+  try {
+    const res = await API.post("/auth/login", { email, password });
+    return res.data;
+  } catch (error: any) {
+    throw new Error(getErrorMessage(error, "Unable to sign in right now."));
   }
-
-  return data;
 }
 
+export async function registerUser(payload: RegisterPayload) {
+  try {
+    const res = await API.post("/auth/register", payload);
+    return res.data;
+  } catch (error: any) {
+    throw new Error(getErrorMessage(error, "Unable to create your account right now."));
+  }
+}
+
+export async function forgotPassword(email: string) {
+  try {
+    const res = await API.post("/auth/forgot-password", { email });
+    return res.data;
+  } catch (error: any) {
+    throw new Error(getErrorMessage(error, "Failed to send reset link. Please try again."));
+  }
+}

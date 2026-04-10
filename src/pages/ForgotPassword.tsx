@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, Sun, Moon, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { forgotPassword } from '../services/authService';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -37,26 +38,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      // Placeholder API call - replace with real endpoint later
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      // Handle response - do NOT hardcode success
-      if (!response.ok) {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message || 'Failed to send reset link. Please try again.');
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
-      
-      // Show success message
+      await forgotPassword(email);
       setSuccessMessage('If this email exists, a reset link has been sent.');
       setEmail('');
       setLoading(false);

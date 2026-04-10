@@ -9,6 +9,8 @@ import {
   Sparkles,
   ArrowRight,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { registerUser } from "../services/authService";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -38,30 +40,12 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch("https://edunex-backend-rj22.onrender.com/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Registration failed");
-        return;
-      }
-
-      alert("Account created successfully");
+      await registerUser({ name, email, password });
+      toast.success("Account created successfully");
       navigate("/login");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Register request failed:", error);
-      alert("Unable to reach the registration server. Please try again.");
+      toast.error(error?.message || "Unable to reach the registration server. Please try again.");
     }
   };
 

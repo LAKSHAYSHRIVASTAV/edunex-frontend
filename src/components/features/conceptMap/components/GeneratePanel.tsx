@@ -15,9 +15,18 @@ export default function GeneratePanel({ concepts, onGenerated, onConceptSelect }
   const handleGenerate = async () => {
     if (!text.trim()) return;
 
+    let userId = "guest";
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        userId = parsedUser?.id || parsedUser?._id || "guest";
+      }
+    } catch {}
+
     const result = await generateMap({
       text: text.trim(),
-      userId: localStorage.getItem("userId") || "guest",
+      userId,
     });
 
     onGenerated?.(result);

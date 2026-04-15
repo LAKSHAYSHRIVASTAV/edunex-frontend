@@ -96,10 +96,11 @@ export default function QuizPage() {
   const handleCheckAnswer = () => {
 
     const selected = answers[currentQuestion];
-    const correct = question.correctAnswer;
+   const correct = question.correctAnswer;
 
-    const isCorrect = selected === correct;
-
+const isCorrect =
+  selected?.trim().toLowerCase() ===
+  correct?.trim().toLowerCase();
     if (isCorrect) {
       setScore((prev) => prev + 1);
     }
@@ -237,7 +238,9 @@ export default function QuizPage() {
       {question.options.map((option: string, i: number) => {
 
         const selected = answers[currentQuestion] === option;
-        const isCorrectOption = option === question.correctAnswer;
+        const isCorrectOption =
+  option?.trim().toLowerCase() ===
+  question.correctAnswer?.trim().toLowerCase();
 
         let bgColor = "bg-white";
 

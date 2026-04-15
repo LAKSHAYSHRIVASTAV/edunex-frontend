@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
+import API from "../../config/api";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -13,6 +14,7 @@ export default function SummaryCard() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [quizLoading, setQuizLoading] = useState(false);
   const [difficulty, setDifficulty] = useState("medium");
+  const [uploadedFileName, setUploadedFileName] = useState("");
 
   const navigate = useNavigate();
 
@@ -22,23 +24,29 @@ export default function SummaryCard() {
     if (!file) return;
 
     const fileType = file.type;
+    setUploadedFileName(file.name || "");
 
     if (fileType === "application/pdf") {
       const reader = new FileReader();
       reader.onload = async function () {
-        const typedarray = new Uint8Array(this.result as ArrayBuffer);
-        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        try {
+          const typedarray = new Uint8Array(this.result as ArrayBuffer);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
 
-        let extractedText = "";
+          let extractedText = "";
 
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          const strings = content.items.map((item: any) => item.str);
-          extractedText += strings.join(" ") + "\n";
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            const strings = content.items.map((item: any) => item.str);
+            extractedText += strings.join(" ") + "\n";
+          }
+
+          setText(extractedText.trim());
+        } catch (error) {
+          console.error("PDF extraction failed:", error);
+          alert("Could not read text from this PDF.");
         }
-
-        setText(extractedText);
       };
 
       reader.readAsArrayBuffer(file);
@@ -48,11 +56,16 @@ export default function SummaryCard() {
     ) {
       const reader = new FileReader();
       reader.onload = async function () {
-        const result = await mammoth.extractRawText({
-          arrayBuffer: this.result as ArrayBuffer,
-        });
+        try {
+          const result = await mammoth.extractRawText({
+            arrayBuffer: this.result as ArrayBuffer,
+          });
 
-        setText(result.value);
+          setText(result.value.trim());
+        } catch (error) {
+          console.error("DOCX extraction failed:", error);
+          alert("Could not read text from this DOCX file.");
+        }
       };
 
       reader.readAsArrayBuffer(file);
@@ -79,24 +92,10 @@ export default function SummaryCard() {
     setSummary("");
 
     try {
-      const res = await fetch(
-        "https://edunex-backend-rj22.onrender.com/api/ai/summary",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ text }),
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message);
-
+      const { data } = await API.post("/ai/summary", { text });
       setSummary(data.summary);
     } catch (error: any) {
-      alert(error.message || "Summary failed");
+      alert(error?.response?.data?.message || error.message || "Summary failed");
     } finally {
       setSummaryLoading(false);
     }
@@ -122,36 +121,35 @@ export default function SummaryCard() {
   setQuizLoading(true);
 
     try {
-      const res = await fetch(
-        "https://edunex-backend-rj22.onrender.com/api/ai/quiz",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            text,
-            difficulty,
-          }),
-        }
-      );
+      const payload = {
+        text,
+        inputText: text,
+        extractedText: text,
+        content: text,
+        difficulty,
+        numQuestions: 5,
+        title: uploadedFileName || "Pasted Content",
+      };
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message);
-
-      const questions = data.quiz;
+      const { data } = await API.post("/ai/quiz", payload);
+      const questions = Array.isArray(data?.quiz) ? data.quiz : [];
 
       navigate("/quiz", {
-  state: {
-    quiz: questions,
-    difficulty: data.difficulty,
-    subject: data.subject,
-  },
-});
+        state: {
+          quiz: questions,
+          difficulty: data.difficulty,
+          subject: data.subject,
+          sourceTitle: uploadedFileName || "Pasted Content",
+          sourceText: text,
+        },
+      });
 
     } catch (error: any) {
-      alert(error.message || "Quiz generation failed");
+      alert(
+        error?.response?.data?.message ||
+          error.message ||
+          "Quiz generation failed"
+      );
     } finally {
      setQuizLoading(false);
     }
@@ -175,6 +173,12 @@ export default function SummaryCard() {
         }}
         className="block w-full text-sm text-gray-600"
       />
+
+      {uploadedFileName && (
+        <p className="text-sm text-gray-500">
+          Loaded file: {uploadedFileName}
+        </p>
+      )}
 
       <textarea
         rows={6}

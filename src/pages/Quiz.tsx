@@ -32,9 +32,10 @@ export default function QuizPage() {
 
   const subject =
     quizData?.subject ||
+    quizData?.sourceTitle ||
     quiz?.[0]?.subject ||
     quiz?.[0]?.topic ||
-    "General";
+    "Uploaded Content";
 
   /* ---------------- QUIZ STATE ---------------- */
 
@@ -59,6 +60,10 @@ export default function QuizPage() {
         <h2 className="text-xl font-bold">
           No Quiz Data Found
         </h2>
+
+        <p className="mt-2 text-gray-600">
+          Paste richer notes or upload a text-based PDF/DOCX so the quiz can be generated from that content only.
+        </p>
 
         <button
           onClick={() => navigate("/dashboard")}

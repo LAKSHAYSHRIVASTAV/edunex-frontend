@@ -17,22 +17,22 @@ export default function SummaryCard() {
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [fileReading, setFileReading] = useState(false);
 
-  const getFileExtension = (fileName: string) =>
+  const navigate = useNavigate();
+
+  const getFileExtension = (fileName) =>
     fileName.split(".").pop()?.trim().toLowerCase() || "";
 
-  const isPdfFile = (file: File) =>
+  const isPdfFile = (file) =>
     file.type === "application/pdf" || getFileExtension(file.name) === "pdf";
 
-  const isDocxFile = (file: File) =>
+  const isDocxFile = (file) =>
     file.type ===
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     getFileExtension(file.name) === "docx";
 
-  const navigate = useNavigate();
-
   // ================= FILE UPLOAD =================
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file) => {
     if (!file) return;
 
     setUploadedFileName(file.name || "");
@@ -40,6 +40,7 @@ export default function SummaryCard() {
 
     if (isPdfFile(file)) {
       const reader = new FileReader();
+
       reader.onload = async function () {
         try {
           const typedarray = new Uint8Array(this.result as ArrayBuffer);
@@ -50,9 +51,11 @@ export default function SummaryCard() {
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const content = await page.getTextContent();
+
             const strings = content.items
-              .map((item: any) => ("str" in item ? item.str : ""))
+              .map((item) => ("str" in item ? item.str : ""))
               .filter(Boolean);
+
             extractedText += strings.join(" ") + "\n";
           }
 
@@ -60,7 +63,7 @@ export default function SummaryCard() {
 
           if (!cleanedText) {
             alert(
-              "This PDF does not contain selectable text. Please paste the text manually or upload a text-based PDF/DOCX."
+              "This PDF has no selectable text. Upload text-based file."
             );
             setText("");
             return;
@@ -69,9 +72,7 @@ export default function SummaryCard() {
           setText(cleanedText);
         } catch (error) {
           console.error("PDF extraction failed:", error);
-          alert(
-            "Could not read this PDF. Please try another PDF, upload a DOCX, or paste the text directly."
-          );
+          alert("PDF read failed");
         } finally {
           setFileReading(false);
         }
@@ -79,12 +80,13 @@ export default function SummaryCard() {
 
       reader.onerror = () => {
         setFileReading(false);
-        alert("Could not open this PDF file.");
+        alert("Could not open PDF");
       };
 
       reader.readAsArrayBuffer(file);
     } else if (isDocxFile(file)) {
       const reader = new FileReader();
+
       reader.onload = async function () {
         try {
           const result = await mammoth.extractRawText({
@@ -94,9 +96,7 @@ export default function SummaryCard() {
           const cleanedText = result.value.replace(/\s+/g, " ").trim();
 
           if (!cleanedText) {
-            alert(
-              "This DOCX file does not contain readable text. Please paste the text manually or upload another file."
-            );
+            alert("Empty DOCX file");
             setText("");
             return;
           }
@@ -104,9 +104,7 @@ export default function SummaryCard() {
           setText(cleanedText);
         } catch (error) {
           console.error("DOCX extraction failed:", error);
-          alert(
-            "Could not read this DOCX file. Please try another DOCX or paste the text directly."
-          );
+          alert("DOCX read failed");
         } finally {
           setFileReading(false);
         }
@@ -114,13 +112,13 @@ export default function SummaryCard() {
 
       reader.onerror = () => {
         setFileReading(false);
-        alert("Could not open this DOCX file.");
+        alert("Could not open DOCX");
       };
 
       reader.readAsArrayBuffer(file);
     } else {
       setFileReading(false);
-      alert("Only PDF and DOCX files are supported.");
+      alert("Only PDF and DOCX supported");
     }
   };
 
@@ -128,13 +126,7 @@ export default function SummaryCard() {
 
   const generateSummary = async () => {
     if (!text.trim()) {
-      alert("Please enter or upload content first.");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login again.");
+      alert("Please enter content");
       return;
     }
 
@@ -144,31 +136,24 @@ export default function SummaryCard() {
     try {
       const { data } = await API.post("/ai/summary", { text });
       setSummary(data.summary);
-    } catch (error: any) {
-      alert(error?.response?.data?.message || error.message || "Summary failed");
+    } catch (error) {
+      alert("Summary failed");
     } finally {
       setSummaryLoading(false);
     }
   };
 
-  // ================= QUIZ =================
+  // ================= QUIZ (🔥 FIXED) =================
 
   const generateQuiz = async () => {
+    if (quizLoading) return;
 
-  if (quizLoading) return; // prevents duplicate calls
+    if (!text.trim()) {
+      alert("Please enter content");
+      return;
+    }
 
-  if (!text.trim()) {
-    alert("Please enter or upload content first.");
-    return;
-  }
-
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Please login again.");
-    return;
-  }
-
-  setQuizLoading(true);
+    setQuizLoading(true);
 
     try {
       const payload = {
@@ -182,26 +167,41 @@ export default function SummaryCard() {
       };
 
       const { data } = await API.post("/ai/quiz", payload);
-      const questions = Array.isArray(data?.quiz) ? data.quiz : [];
 
+      // ✅ FIXED EXTRACTION
+      const questions =
+        data?.quiz ||
+        data?.questions ||
+        (Array.isArray(data) ? data : []);
+
+      console.log("QUIZ API RESPONSE:", data);
+      console.log("FINAL QUESTIONS:", questions);
+
+      // ✅ SAFETY CHECK
+      if (!questions || questions.length === 0) {
+        alert("Quiz not generated. Add more detailed content.");
+        return;
+      }
+
+      // ✅ SAVE FOR REFRESH
+      localStorage.setItem("quiz", JSON.stringify(questions));
+
+      // ✅ NAVIGATE
       navigate("/quiz", {
         state: {
           quiz: questions,
-          difficulty: data.difficulty,
-          subject: data.subject,
+          difficulty: data?.difficulty || difficulty,
+          subject: data?.subject || "General",
           sourceTitle: uploadedFileName || "Pasted Content",
           sourceText: text,
         },
       });
 
-    } catch (error: any) {
-      alert(
-        error?.response?.data?.message ||
-          error.message ||
-          "Quiz generation failed"
-      );
+    } catch (error) {
+      console.error("Quiz error:", error);
+      alert("Quiz generation failed");
     } finally {
-     setQuizLoading(false);
+      setQuizLoading(false);
     }
   };
 
@@ -209,19 +209,18 @@ export default function SummaryCard() {
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white/70 backdrop-blur-xl shadow-xl border border-white/40 rounded-2xl p-8 space-y-6 transition-all"
+      className="bg-white/70 backdrop-blur-xl shadow-xl border border-white/40 rounded-2xl p-8 space-y-6"
     >
-      <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+      <h3 className="text-2xl font-bold text-indigo-600">
         AI Document Intelligence
       </h3>
 
       <input
         type="file"
         accept=".pdf,.docx"
-        onChange={(e) => {
-          if (e.target.files) handleFileUpload(e.target.files[0]);
-        }}
-        className="block w-full text-sm text-gray-600"
+        onChange={(e) =>
+          e.target.files && handleFileUpload(e.target.files[0])
+        }
       />
 
       {uploadedFileName && (
@@ -230,73 +229,50 @@ export default function SummaryCard() {
         </p>
       )}
 
-      {fileReading && (
-        <p className="text-sm text-indigo-600">
-          Reading file content...
-        </p>
-      )}
+      {fileReading && <p className="text-indigo-600">Reading file...</p>}
 
       <textarea
         rows={6}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Paste your study material here..."
-        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none transition"
+        placeholder="Paste your study material..."
+        className="w-full p-4 border rounded-xl"
       />
 
-      {/* Difficulty */}
-<div>
-  <label className="block font-semibold mb-2 text-gray-900">
-    Select Difficulty
-  </label>
-
-  <select
-    value={difficulty}
-    onChange={(e) => setDifficulty(e.target.value)}
-    className="w-full p-3 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-  >
-    <option value="easy" className="text-gray-900">Easy</option>
-    <option value="medium" className="text-gray-900">Medium</option>
-    <option value="hard" className="text-gray-900">Hard</option>
-  </select>
-</div>
+      <select
+        value={difficulty}
+        onChange={(e) => setDifficulty(e.target.value)}
+        className="w-full p-3 border rounded-xl"
+      >
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
 
       <div className="flex gap-4">
         <button
-  onClick={generateSummary}
-  disabled={summaryLoading || fileReading}
-  className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl shadow hover:scale-105 transition"
->
-  {summaryLoading ? "Generating..." : "Generate Summary"}
-</button>
+          onClick={generateSummary}
+          disabled={summaryLoading || fileReading}
+          className="px-6 py-3 bg-indigo-500 text-white rounded-xl"
+        >
+          {summaryLoading ? "Generating..." : "Summary"}
+        </button>
 
         <button
-  onClick={generateQuiz}
-  disabled={quizLoading || fileReading}
-  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow hover:scale-105 transition"
->
-  {quizLoading ? "Generating..." : "Generate Quiz"}
-</button>
+          onClick={generateQuiz}
+          disabled={quizLoading || fileReading}
+          className="px-6 py-3 bg-purple-600 text-white rounded-xl"
+        >
+          {quizLoading ? "Generating..." : "Quiz"}
+        </button>
       </div>
 
       {summary && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-6 p-6 bg-indigo-50 rounded-xl border border-indigo-100"
-        >
-          <h4 className="font-semibold mb-3 text-indigo-700">
-            Summary
-          </h4>
-          <p className="whitespace-pre-line text-gray-700 leading-relaxed">
-            {summary}
-          </p>
-        </motion.div>
+        <div className="mt-4 p-4 bg-indigo-50 rounded-xl">
+          <h4 className="font-semibold">Summary</h4>
+          <p>{summary}</p>
+        </div>
       )}
     </motion.div>
   );
 }
-
-
-
-

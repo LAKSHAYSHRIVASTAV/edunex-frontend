@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import * as pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist/build/pdf.mjs";
+import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import mammoth from "mammoth";
 import API from "../../config/api";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
 
 export default function SummaryCard() {
   const [text, setText] = useState("");
@@ -15,6 +15,18 @@ export default function SummaryCard() {
   const [quizLoading, setQuizLoading] = useState(false);
   const [difficulty, setDifficulty] = useState("medium");
   const [uploadedFileName, setUploadedFileName] = useState("");
+  const [fileReading, setFileReading] = useState(false);
+
+  const getFileExtension = (fileName: string) =>
+    fileName.split(".").pop()?.trim().toLowerCase() || "";
+
+  const isPdfFile = (file: File) =>
+    file.type === "application/pdf" || getFileExtension(file.name) === "pdf";
+
+  const isDocxFile = (file: File) =>
+    file.type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    getFileExtension(file.name) === "docx";
 
   const navigate = useNavigate();
 
@@ -23,10 +35,10 @@ export default function SummaryCard() {
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
-    const fileType = file.type;
     setUploadedFileName(file.name || "");
+    setFileReading(true);
 
-    if (fileType === "application/pdf") {
+    if (isPdfFile(file)) {
       const reader = new FileReader();
       reader.onload = async function () {
         try {
@@ -38,22 +50,40 @@ export default function SummaryCard() {
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const content = await page.getTextContent();
-            const strings = content.items.map((item: any) => item.str);
+            const strings = content.items
+              .map((item: any) => ("str" in item ? item.str : ""))
+              .filter(Boolean);
             extractedText += strings.join(" ") + "\n";
           }
 
-          setText(extractedText.trim());
+          const cleanedText = extractedText.replace(/\s+/g, " ").trim();
+
+          if (!cleanedText) {
+            alert(
+              "This PDF does not contain selectable text. Please paste the text manually or upload a text-based PDF/DOCX."
+            );
+            setText("");
+            return;
+          }
+
+          setText(cleanedText);
         } catch (error) {
           console.error("PDF extraction failed:", error);
-          alert("Could not read text from this PDF.");
+          alert(
+            "Could not read this PDF. Please try another PDF, upload a DOCX, or paste the text directly."
+          );
+        } finally {
+          setFileReading(false);
         }
       };
 
+      reader.onerror = () => {
+        setFileReading(false);
+        alert("Could not open this PDF file.");
+      };
+
       reader.readAsArrayBuffer(file);
-    } else if (
-      fileType ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ) {
+    } else if (isDocxFile(file)) {
       const reader = new FileReader();
       reader.onload = async function () {
         try {
@@ -61,15 +91,35 @@ export default function SummaryCard() {
             arrayBuffer: this.result as ArrayBuffer,
           });
 
-          setText(result.value.trim());
+          const cleanedText = result.value.replace(/\s+/g, " ").trim();
+
+          if (!cleanedText) {
+            alert(
+              "This DOCX file does not contain readable text. Please paste the text manually or upload another file."
+            );
+            setText("");
+            return;
+          }
+
+          setText(cleanedText);
         } catch (error) {
           console.error("DOCX extraction failed:", error);
-          alert("Could not read text from this DOCX file.");
+          alert(
+            "Could not read this DOCX file. Please try another DOCX or paste the text directly."
+          );
+        } finally {
+          setFileReading(false);
         }
+      };
+
+      reader.onerror = () => {
+        setFileReading(false);
+        alert("Could not open this DOCX file.");
       };
 
       reader.readAsArrayBuffer(file);
     } else {
+      setFileReading(false);
       alert("Only PDF and DOCX files are supported.");
     }
   };
@@ -180,6 +230,12 @@ export default function SummaryCard() {
         </p>
       )}
 
+      {fileReading && (
+        <p className="text-sm text-indigo-600">
+          Reading file content...
+        </p>
+      )}
+
       <textarea
         rows={6}
         value={text}
@@ -208,7 +264,7 @@ export default function SummaryCard() {
       <div className="flex gap-4">
         <button
   onClick={generateSummary}
-  disabled={summaryLoading}
+  disabled={summaryLoading || fileReading}
   className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl shadow hover:scale-105 transition"
 >
   {summaryLoading ? "Generating..." : "Generate Summary"}
@@ -216,7 +272,7 @@ export default function SummaryCard() {
 
         <button
   onClick={generateQuiz}
-  disabled={quizLoading}
+  disabled={quizLoading || fileReading}
   className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl shadow hover:scale-105 transition"
 >
   {quizLoading ? "Generating..." : "Generate Quiz"}

@@ -13,7 +13,7 @@ const resolvedBaseUrl = envBaseUrl || defaultProductionApi;
 
 const API = axios.create({
   baseURL: resolvedBaseUrl,
-  timeout: 20000, // 20s (important for Render cold start)
+  timeout: 90000, // allow Render cold starts + AI generation for larger docs
   headers: {
     "Content-Type": "application/json",
   },
@@ -27,5 +27,20 @@ API.interceptors.request.use((config) => {
   }
   return config;
 });
+
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === "ECONNABORTED") {
+      error.message =
+        "The request took too long. Please try again in a few seconds.";
+    } else if (!error.response) {
+      error.message =
+        "Unable to reach the server. Please wait for the backend to wake up and try again.";
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default API;

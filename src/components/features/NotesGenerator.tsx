@@ -7,8 +7,13 @@ const NotesGenerator = () => {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ Use ENV or fallback to your Render backend
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "https://edunex-backend-rj22.onrender.com";
+
   const handleGenerate = async () => {
-    if (!content) {
+    if (!content.trim()) {
       alert("Please enter content");
       return;
     }
@@ -17,15 +22,31 @@ const NotesGenerator = () => {
       setLoading(true);
       setNotes("");
 
-      const res = await axios.post("/api/notes/generate", {
-        content,
-        difficulty,
-      });
+      const res = await axios.post(
+        `${API_URL}/api/notes/generate`,
+        {
+          content,
+          difficulty,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      setNotes(res.data.notes);
-    } catch (err) {
-      console.error(err);
-      alert("Error generating notes");
+      if (res.data.success) {
+        setNotes(res.data.notes);
+      } else {
+        alert(res.data.message || "Failed to generate notes");
+      }
+    } catch (err: any) {
+      console.error("ERROR:", err?.response?.data || err.message);
+
+      alert(
+        err?.response?.data?.message ||
+          "Error generating notes. Check backend."
+      );
     } finally {
       setLoading(false);
     }
@@ -33,7 +54,7 @@ const NotesGenerator = () => {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
-      <h2 className="text-xl font-bold mb-4">AI Notes Generator</h2>
+      <h2 className="text-xl font-bold mb-4">🧠 AI Notes Generator</h2>
 
       <textarea
         placeholder="Paste your study material..."
@@ -54,7 +75,7 @@ const NotesGenerator = () => {
 
       <button
         onClick={handleGenerate}
-        className="bg-purple-600 text-white px-4 py-2 rounded-lg"
+        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
       >
         Generate Notes
       </button>

@@ -27,14 +27,15 @@ const ActionButtons: React.FC<Props> = ({ onFlashcardsClick }) => {
 
   const buttons: ActionButton[] = [
     {
-      id: "summary",
-      label: "Summary",
-      sublabel: "AI-Generated",
-      icon: <FileText size={24} />,
-      gradient: "from-blue-500 via-cyan-500 to-blue-600",
-      gradientIcon: "from-blue-400 to-cyan-400",
-      accentColor: "bg-blue-100/40",
-    },
+  id: "notes",
+  label: "Notes",
+  sublabel: "AI Notes Generation",
+  icon: <FileText size={24} />,
+  gradient: "from-blue-500 via-cyan-500 to-blue-600",
+  gradientIcon: "from-blue-400 to-cyan-400",
+  accentColor: "bg-blue-100/40",
+},
+     
     {
       id: "quiz",
       label: "Quiz",
@@ -95,9 +96,9 @@ const ActionButtons: React.FC<Props> = ({ onFlashcardsClick }) => {
         navigate("/analytics");
         break;
 
-      case "summary":
-        navigate("/dashboard");
-        break;
+      case "notes":
+  navigate("/notes");
+  break;
 
       default:
         break;

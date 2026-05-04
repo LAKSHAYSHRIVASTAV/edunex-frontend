@@ -7,6 +7,7 @@ import Sidebar from "../layout/Sidebar";
 
 import SummaryCard from "../dashboard/SummaryCard";
 import ActionButtons from "../dashboard/ActionButtons";
+import NotesGenerator from "./NotesGenerator";
 import ProgressChart from "../dashboard/ProgressChart";
 import KnowledgeGraph from "../dashboard/KnowledgeGraph";
 
@@ -197,6 +198,9 @@ export default function Dashboard() {
           {/* Action Buttons */}
 
           <ActionButtons onFlashcardsClick={() => navigate("/flashcards")} />
+           
+            {/*  AI Notes Generator */}
+<NotesGenerator />
 
           {/* Progress Overview */}
 

@@ -7,16 +7,18 @@ const NotesGenerator = () => {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Use ENV or fallback to your Render backend
-  const API_URL =
-    import.meta.env.VITE_API_URL ||
-    "https://edunex-backend-rj22.onrender.com";
+  // ✅ FORCE correct backend (avoid env issues for now)
+  const API_URL = "https://edunex-backend-rj22.onrender.com";
 
   const handleGenerate = async () => {
     if (!content.trim()) {
       alert("Please enter content");
       return;
     }
+
+    // 🔍 DEBUG (remove later)
+    console.log("API_URL:", API_URL);
+    console.log("FINAL URL:", `${API_URL}/api/notes/generate`);
 
     try {
       setLoading(true);
@@ -75,12 +77,11 @@ const NotesGenerator = () => {
 
       <button
         onClick={handleGenerate}
+        disabled={loading}
         className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
       >
-        Generate Notes
+        {loading ? "Generating..." : "Generate Notes"}
       </button>
-
-      {loading && <p className="mt-4">Generating...</p>}
 
       {notes && (
         <div className="mt-6 p-4 bg-gray-100 rounded-lg whitespace-pre-wrap">

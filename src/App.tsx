@@ -24,6 +24,7 @@ import Home from "./pages/Home";
 import ReportPage from "./components/features/report/ReportPage";
 import ReportPreview from "./components/features/report/ReportPreview";
 import ConceptMapPage from "./components/features/conceptMap/ConceptMapPage";
+import NotesGenerator from "./components/features/NotesGenerator";
 
 
 
@@ -174,6 +175,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/notes"
+  element={
+    <ProtectedRoute>
+      <NotesGenerator />
+    </ProtectedRoute>
+  }
+/>
         <Route
   path="/concept-map"
   element={
